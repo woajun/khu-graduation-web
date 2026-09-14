@@ -17,7 +17,7 @@ export function ColorIndex() {
         ))}
         <Asset
           className="stage__item cutout js-float"
-          name="obj-sofa.png"
+          name="obj-sofa.webp"
           alt="길가에 버려진 줄무늬 소파"
           style={{ left: '33%', top: '72%', width: '14%' }}
         />

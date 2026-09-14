@@ -15,30 +15,30 @@ export function Intro() {
     <section className="intro cut" aria-label="프로젝트 서문">
       <Asset
         className="cut__item cutout js-float"
-        name="obj-foam-tray.png"
+        name="obj-foam-tray.webp"
         alt="버려진 스티로폼 트레이"
         style={{ left: '84.4%', top: '10.6%', width: '12%' }}
       />
       <Asset
         className="cut__item ink"
-        name="intro-paragraph.png"
+        name="intro-paragraph.webp"
         alt={PARAGRAPH}
         style={{ left: '19.5%', top: '24%', width: '61.4%' }}
       />
       <Asset
         className="cut__item cutout js-float"
-        name="crumpled-paper.png"
+        name="crumpled-paper.webp"
         alt="구겨진 신문지"
         style={{ left: '9.7%', top: '57.9%', width: '13%' }}
       />
       <Asset
         className="cut__item ink"
-        name="arrow-down.png"
+        name="arrow-down.webp"
         style={{ left: '50.5%', top: '83.1%', width: '0.78%' }}
       />
       <Asset
         className="cut__item ink js-archive-header"
-        name="archive-header.png"
+        name="archive-header.webp"
         alt="FIELD ARCHIVE — Collected scenes from altered nature. FILTER BY. 04.03 – 11.03, 2026. Photographed over 7 months."
         style={{ left: '3.4%', top: '91%', width: '93.3%' }}
       />

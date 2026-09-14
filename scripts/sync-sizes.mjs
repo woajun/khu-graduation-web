@@ -1,30 +1,27 @@
 /**
- * public/interaction/ 의 PNG 크기를 읽어 src/lib/image-sizes.ts 를 다시 쓴다.
- * Figma 에서 에셋을 다시 내보낸 뒤 `npm run sync:sizes` 로 실행한다.
+ * public/interaction/ 의 이미지 크기를 읽어 src/lib/image-sizes.ts 를 다시 쓴다.
+ * 에셋을 새로 구운 뒤 `yarn sync:sizes` 로 실행한다.
  */
-import { readdir, writeFile, readFile } from 'node:fs/promises'
+import { readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import sharp from 'sharp'
 
 const DIR = 'public/interaction'
 
-/** PNG IHDR 청크에서 폭과 높이를 읽는다. */
-async function readSize(path) {
-  const buf = await readFile(path)
-  if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error(`PNG 가 아님: ${path}`)
-  return [buf.readUInt32BE(16), buf.readUInt32BE(20)]
-}
-
-const files = (await readdir(DIR)).filter((f) => f.endsWith('.png')).sort()
+const files = (await readdir(DIR)).filter((f) => /\.(webp|png|jpe?g)$/i.test(f)).sort()
 const entries = await Promise.all(
-  files.map(async (f) => `  '${f}': [${(await readSize(join(DIR, f))).join(', ')}],`),
+  files.map(async (f) => {
+    const { width, height } = await sharp(join(DIR, f)).metadata()
+    return `  '${f}': [${width}, ${height}],`
+  }),
 )
 
 await writeFile(
   'src/lib/image-sizes.ts',
   `/**
- * public/interaction/ 안 PNG 들의 실제 픽셀 크기.
+ * public/interaction/ 안 이미지들의 실제 픽셀 크기.
  * img 에 width/height 를 박아 로딩 중 레이아웃이 밀리지 않게 하는 용도다.
- * 에셋을 다시 내보내면 \`npm run sync:sizes\` 로 갱신한다.
+ * 에셋을 다시 구우면 \`yarn sync:sizes\` 로 갱신한다.
  */
 export const IMAGE_SIZES: Record<string, readonly [number, number]> = {
 ${entries.join('\n')}
