@@ -1,0 +1,225 @@
+:root {
+  --bg: #ffffff;
+  --ink: #000000;
+
+  /* 시안 영상에서 잰 값. 반지름은 뷰포트 폭의 23.8% 로 끝까지 변하지 않는다. */
+  --lens-r: clamp(120px, 23.8vw, 520px);
+  --lens-bg: #222222;
+
+  /* 시안 프레임 비율. 아카이브 사진 행(원본 1920px)이 영상에서 화면 폭을 정확히
+     꽉 채우는 것으로 확인한 값이다. 모든 장면이 이 무대 위에 퍼센트 좌표로 놓인다. */
+  --frame: 1920 / 1316;
+}
+
+/* ---------------------------------------------------------------- 렌즈 */
+
+.lens {
+  position: relative;
+  background: var(--bg);
+  /* 두 레이어의 쌓임 순서를 이 안에 가둔다. */
+  isolation: isolate;
+}
+
+.lens__layer--light {
+  position: relative;
+  z-index: 0;
+}
+
+.lens__layer--dark {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--lens-bg);
+  pointer-events: none;
+  clip-path: circle(var(--lens-r) at var(--lx, 50%) var(--ly, 50%));
+}
+
+/* 어두운 사본 안에서만 톤을 뒤집는다.
+   글자는 검정 PNG 라 invert 로 흰 글자가 되고, 사진은 뒤집는 대신 색만 뺀다. */
+.lens__layer--dark .ink {
+  filter: invert(1) brightness(0.87);
+}
+
+.lens__layer--dark .photo {
+  filter: grayscale(1) brightness(0.92);
+}
+
+.lens__layer--dark .cutout {
+  filter: grayscale(1) brightness(0.95);
+}
+
+/* ---------------------------------------------------------------- 컷 */
+
+/* 화면 하나를 꽉 채우는 한 컷. 안에 놓이는 요소는 가로/크기를 화면 폭 기준,
+   세로를 화면 높이 기준으로 잡는다. */
+.cut {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+}
+
+.cut__item {
+  position: absolute;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ---------------------------------------------------------------- 무대 */
+
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--frame);
+}
+
+.stage__item {
+  position: absolute;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ---------------------------------------------------------------- 내비 */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* ---------------------------------------------------------------- 히어로 */
+
+.hero {
+  /* 컷 세 개 분량. 참고 이미지 1~3 이 각각 화면 하나씩을 차지한다. */
+  height: 300svh;
+}
+
+.hero__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: grid;
+  /* 시안은 화면 위쪽에 붙는다. 가운데 정렬하면 구도 전체가 아래로 밀린다. */
+  place-items: start center;
+  overflow: hidden;
+}
+
+/* 가로로 넓은 화면에서도 무대가 화면 높이를 넘지 않게 한다. */
+.hero .stage {
+  width: min(100%, calc(100svh * 1920 / 1316));
+}
+
+/* 가로로 미끄러지는 묶음. 무대 전체를 덮어야 xPercent 가 무대 폭 기준이 된다. */
+.hero__headline {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* ---------------------------------------------------------------- 아카이브 */
+
+.archive {
+  /* 마지막 컷에서 머리말과 첫 사진 행 사이 간격. 참고 이미지 5 기준. */
+  padding-block: 10svh 8svh;
+}
+
+.archive__group + .archive__group {
+  /* 시안에서 잰 간격: 캡션 위 32px, 캡션과 다음 사진 사이 65px (1920 기준) */
+  margin-top: 3.4vw;
+}
+
+.archive__row {
+  width: 100%;
+}
+
+.archive__caps {
+  width: 100%;
+  margin-top: 1.7vw;
+}
+
+/* ---------------------------------------------------------------- 색 목록 */
+
+.color-index {
+  padding-top: 4svh;
+  min-height: 100svh;
+}
+
+/* ---------------------------------------------------------------- 좁은 화면 */
+
+/* 줌아웃을 걸지 않는 폭에서는 히어로를 고정할 이유가 없다.
+   sticky 로 두면 구도 아래에 빈 화면만 한참 남는다. (useScrollFx 의 WIDE 와 같은 값) */
+@media (max-width: 860px) {
+  .hero {
+    height: auto;
+  }
+
+  .intro {
+    height: auto;
+    padding-block: 8svh;
+  }
+
+  .intro .cut__item {
+    position: static;
+    width: auto !important;
+    max-width: 78%;
+    margin: 6svh auto;
+  }
+
+  .hero__sticky {
+    position: static;
+    height: auto;
+    padding-block: 14svh 6svh;
+  }
+
+  .hero .stage {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------- 모션 최소화 */
+
+@media (prefers-reduced-motion: reduce) {
+  /* 렌즈는 움직임이 전부라, 멈춰 세우면 화면을 가리는 검은 원만 남는다. */
+  .lens__layer--dark {
+    display: none;
+  }
+
+  .hero {
+    height: auto;
+  }
+
+  .intro {
+    height: auto;
+    padding-block: 8svh;
+  }
+
+  .intro .cut__item {
+    position: static;
+    width: auto !important;
+    max-width: 70%;
+    margin: 6svh auto;
+  }
+
+  .hero__sticky {
+    position: static;
+    height: auto;
+    padding-block: 8svh;
+  }
+
+  .hero .stage {
+    width: 100%;
+  }
+
+  .js-hero-object,
+  .js-hero-annotation,
+  .js-archive-row,
+  .js-float {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

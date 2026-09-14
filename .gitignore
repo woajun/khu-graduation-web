@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 시안 참고 영상 — 169MB 라 저장소에 넣지 않는다 (필요하면 Figma 에서 다시 녹화)
+reference/*.mov
+
+# Yarn 오프라인 캐시 — 36MB 라 저장소에 넣지 않는다
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
