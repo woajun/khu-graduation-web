@@ -179,7 +179,13 @@ export function useScrollFx() {
       })
     })
 
+    // 이미지가 늦게 뜨면 문서 높이가 바뀌어 컷 경계도 밀린다. 다 뜬 뒤 한 번 다시 잰다.
+    const refresh = () => ScrollTrigger.refresh()
+    if (document.readyState === 'complete') refresh()
+    else addEventListener('load', refresh, { once: true })
+
     return () => {
+      removeEventListener('load', refresh)
       mm.revert()
     }
   }, [])
