@@ -102,6 +102,11 @@ export function useCutDeck() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
 
+      // 버튼·링크에 포커스가 가 있으면 건드리지 않는다. Space 나 화살표를 가로채면
+      // 헤더 메뉴를 키보드로 못 쓰게 된다.
+      const el = e.target as HTMLElement | null
+      if (el?.closest('a, button, input, select, textarea, [contenteditable]')) return
+
       if (e.key === 'Home' || e.key === 'End') {
         e.preventDefault()
         if (!animating) goTo(e.key === 'Home' ? 0 : cuts.length - 1)

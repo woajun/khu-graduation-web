@@ -1,4 +1,4 @@
-import { Asset } from './components/Asset'
+import { Header } from './components/Header'
 import { Lens } from './components/Lens'
 import { useCutDeck } from './lib/useCutDeck'
 import { useScrollFx } from './lib/useScrollFx'
@@ -26,9 +26,7 @@ export default function App() {
 
   return (
     <>
-      {/* 내비는 렌즈 밖에 둔다. 화면에 고정된 요소를 렌즈 안에 넣으면
-          clip-path 가 문서 좌표로 자르기 때문에 엉뚱한 데가 잘린다. */}
-      <Asset className="nav" name="nav.webp" alt="ARCHIVE" eager />
+      <Header />
       <Lens>
         <Content />
       </Lens>
