@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 
-/** 메뉴 항목. 아직 붙일 페이지가 없어 링크는 현재 문서를 가리킨다. */
-const LINKS = [
-  { label: 'Archiving', href: '#', current: true },
-  { label: 'magazine', href: '#', current: false },
-  { label: 'gacha', href: '#', current: false },
+import { routePath, type Route } from '../lib/useRoute'
+
+/**
+ * 메뉴 항목.
+ *
+ * 시안마다 첫 항목 이름이 다르다 — 아카이브 쪽은 'Archiving', 가챠 쪽은 'color book'.
+ * 나중 시안인 가챠 것을 따랐다. magazine 은 아직 페이지가 없어 자리만 잡아둔다.
+ */
+const LINKS: { label: string; route: Route | null }[] = [
+  { label: 'color book', route: 'archive' },
+  { label: 'magazine', route: null },
+  { label: 'gacha', route: 'gacha' },
 ]
 
 /**
@@ -16,7 +23,17 @@ const LINKS = [
  * 렌즈 바깥에 둔다. 화면에 고정된 요소를 렌즈 안에 넣으면 clip-path 가 문서 좌표로
  * 자르기 때문에 엉뚱한 데가 잘린다.
  */
-export function Header() {
+type Props = {
+  /** 지금 보고 있는 페이지. 해당 항목이 검게 표시된다. */
+  route: Route
+  /**
+   * 'reveal' — 격자만 떠 있다가 올리면 메뉴가 펼쳐진다(아카이브).
+   * 'inline' — 격자가 왼쪽에 붙고 메뉴가 늘 보인다(가챠).
+   */
+  variant?: 'reveal' | 'inline'
+}
+
+export function Header({ route, variant = 'reveal' }: Props) {
   const [open, setOpen] = useState(false)
   const [pinned, setPinned] = useState(false)
   const rootRef = useRef<HTMLElement>(null)
@@ -46,11 +63,11 @@ export function Header() {
     }
   }, [pinned])
 
-  const active = open || pinned
+  const active = variant === 'inline' || open || pinned
 
   return (
     <header
-      className={`nav${active ? ' is-active' : ''}`}
+      className={`nav nav--${variant}${active ? ' is-active' : ''}`}
       ref={rootRef}
       onPointerEnter={(e) => {
         // 터치는 탭으로만 연다. 손가락이 스치는 것까지 열리면 성가시다.
@@ -69,7 +86,11 @@ export function Header() {
         className="nav__toggle"
         aria-expanded={active}
         aria-controls="nav-menu"
-        onClick={() => setPinned((v) => !v)}
+        // 메뉴가 늘 보이는 쪽에서는 여는 버튼이 아니라 홈으로 가는 표시다
+        onClick={() => {
+          if (variant === 'inline') location.hash = routePath('archive')
+          else setPinned((v) => !v)
+        }}
       >
         {/* 시안은 1920 폭에서 28px 격자 — 1px 선 네 줄과 8px 칸 세 개로 딱 떨어진다.
             선을 0.5 좌표에 놓아야 1px 이 픽셀 경계에 정확히 앉아 뭉개지지 않는다. */}
@@ -86,17 +107,21 @@ export function Header() {
       </button>
 
       <nav className="nav__menu" id="nav-menu" aria-label="주요 메뉴">
-        {LINKS.map((link) => (
-          <a
-            key={link.label}
-            className={`nav__link${link.current ? ' is-current' : ''}`}
-            href={link.href}
-            aria-current={link.current ? 'page' : undefined}
-            tabIndex={active ? undefined : -1}
-          >
-            {link.label}
-          </a>
-        ))}
+        {LINKS.map((link) => {
+          const current = link.route === route
+          return (
+            <a
+              key={link.label}
+              className={`nav__link${current ? ' is-current' : ''}`}
+              href={link.route ? routePath(link.route) : '#'}
+              aria-current={current ? 'page' : undefined}
+              aria-disabled={link.route ? undefined : true}
+              tabIndex={active ? undefined : -1}
+            >
+              {link.label}
+            </a>
+          )
+        })}
       </nav>
     </header>
   )
