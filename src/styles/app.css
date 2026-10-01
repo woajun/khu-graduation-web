@@ -429,23 +429,16 @@
 
 
 /* ── 랜딩 ── */
-/* 1단계는 검은 바탕, 2단계는 흰 바탕. 개체는 한 벌이고 반지름과 각도만 달라진다. */
+/* 바탕은 흰색 하나다. 개체는 한 벌이고 반지름과 각도만 달라진다. */
 .landing {
-  position: fixed; inset: 0; background: #000; overflow: hidden;
+  position: fixed; inset: 0; background: #fff; overflow: hidden;
   display: grid; place-items: center;
-  transition: background 1.1s ease;
 }
-.landing--ring { background: #fff; }
-
-/* 로고 두 벌을 겹쳐 두고 흐리기만 바꾼다. 바꿔 끼우면 한 번 깜빡인다. */
 .landing__logo {
-  margin: 0; z-index: 3; width: min(24rem, 34vw); position: relative;
+  margin: 0; z-index: 3; width: min(24rem, 34vw);
   opacity: 0; animation: landing-logo 2.4s ease-out .3s forwards;
 }
-.landing__logo img { width: 100%; height: auto; display: block; transition: opacity .9s ease; }
-.landing__logo img:last-child { position: absolute; inset: 0; opacity: 0; }
-.landing--ring .landing__logo img:first-child { opacity: 0; }
-.landing--ring .landing__logo img:last-child { opacity: 1; }
+.landing__logo img { width: 100%; height: auto; display: block; }
 @keyframes landing-logo { to { opacity: 1; } }
 
 /* 컵은 2단계에서만 보인다. 화면 밖으로 반쯤 걸친다 — 시안에서 양 끝이 잘려 있다. */

@@ -6,12 +6,13 @@ import { objectSrc, type WasteObject } from '../lib/waste'
 /**
  * 랜딩 — 아이콘을 누르면 오는 자리.
  *
- * 시안(랜딩_B → 랜딩_W)의 차례 그대로다.
- *   ① 빈 검은 화면
- *   ② 로고가 투명에서 불투명으로 천천히 나타난다
- *   ③ 양옆에서 개체가 하나씩 들어와 로고 둘레에 흩어져 둥실거린다
- *   ④ 바탕이 희어지고, <b>그 개체들이 그대로</b> 컵 둘레의 원으로 모여 돈다
- *   ⑤ 하나에 손을 올리면 전부 멈추고 그것만 커진다
+ * 시안(랜딩_W)의 차례 그대로다.
+ *   ① 빈 화면에서 로고가 투명에서 불투명으로 천천히 나타난다
+ *   ② 양옆에서 개체가 하나씩 들어와 로고 둘레에 흩어져 둥실거린다
+ *   ③ <b>그 개체들이 그대로</b> 컵 둘레의 원으로 모여 돈다
+ *   ④ 하나에 손을 올리면 전부 멈추고 그것만 커진다
+ *
+ * 바탕은 흰색 하나다. 검은 판을 같이 두었다가 걷었다 — 고를 일이 아니었다.
  *
  * ── 왜 한 벌로 그리나 ──
  *
@@ -71,10 +72,8 @@ export function Landing() {
 
   return (
     <main className={'landing' + (ring ? ' landing--ring' : '')} aria-label="TOXIC EARTH ARCHIVE">
-      {/* 바탕이 바뀌면 로고도 바뀐다. 둘을 겹쳐 두고 흐리기만 바꾼다 — 바꿔 끼우면 한 번 깜빡인다. */}
       <h1 className="landing__logo">
-        <Asset name="logo-tea.webp" alt="TOXIC EARTH ARCHIVE" eager />
-        <Asset name="logo-tea-dark.webp" alt="" eager />
+        <Asset name="logo-tea-dark.webp" alt="TOXIC EARTH ARCHIVE" eager />
       </h1>
 
       {sides.map((side) => (
