@@ -40,7 +40,9 @@ export default function App() {
 
   return (
     <>
-      <Header route={route} variant={route === 'archiving' ? 'reveal' : 'inline'} />
+      {/* 격자가 가운데 서고 손을 올리면 그 아래로 메뉴가 펼쳐진다.
+          가챠만 제 시안이 달라서 격자가 왼쪽에 붙고 메뉴가 같은 줄에 늘 보인다. */}
+      <Header route={route} variant={route === 'gacha' ? 'inline' : 'reveal'} />
       {route === 'landing' ? <Landing /> : route === 'gacha' ? <Gacha /> : <ArchivePage />}
     </>
   )

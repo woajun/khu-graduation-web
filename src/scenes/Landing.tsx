@@ -1,100 +1,88 @@
 import { useEffect, useState } from 'react'
 import { Asset } from '../components/Asset'
 import { asset } from '../lib/assets'
-import { objectSrc, type WasteObject } from '../lib/waste'
+import { GATHER_MS, SIDES, piecesOf } from '../lib/ring'
+import { objectSrc } from '../lib/waste'
 
 /**
  * 랜딩 — 아이콘을 누르면 오는 자리.
  *
- * 시안(랜딩_W)의 차례 그대로다.
- *   ① 빈 화면에서 로고가 투명에서 불투명으로 천천히 나타난다
- *   ② 양옆에서 개체가 하나씩 들어와 로고 둘레에 흩어져 둥실거린다
- *   ③ <b>그 개체들이 그대로</b> 컵 둘레의 원으로 모여 돈다
- *   ④ 하나에 손을 올리면 전부 멈추고 그것만 커진다
+ * 시안의 차례 그대로다.
+ *   *1 빈 화면에서 로고가 투명에서 불투명으로 천천히 나타난다
+ *   *2 개체가 <b>사방에서</b> 하나씩 빨려 들어온다 (staggered implosion)
+ *   *3 시안 그림의 자리에 모인다
+ *   *4 좌우 바깥에서 컵이 밀려 들어온다 — 반만 보인다
+ *   *5 모였던 것이 둘로 갈라져 컵 둘레의 원이 된다
+ *   *6 두 원은 같은 원이라 모자라는 만큼이 그 자리에서 떠오른다
+ *   *7 원이 돈다 — 왼쪽은 시계, 오른쪽은 반시계
+ *   *8 하나에 손을 올리면 전부 멈추고 그것만 커진다
+ *   *9 누르면 가로 중앙에 멈췄다가 반대쪽으로 밀려 나간다 (아직 없다)
+ *
+ * 번호는 작업 보드 ~8 의 컨텍스트와 같다. "*5 좀 더 빠르게" 처럼 가리킨다.
  *
  * 바탕은 흰색 하나다. 검은 판을 같이 두었다가 걷었다 — 고를 일이 아니었다.
  *
  * ── 왜 한 벌로 그리나 ──
  *
- * 흩어진 자리와 원 위의 자리를 따로 그렸더니, 넘어가는 순간 개체가 한 번 사라졌다 다시 섰다.
- * 들어온 것과 도는 것이 <b>같은 개체</b>로 보여야 "주워 모은 것이 모였다" 가 된다.
+ * 단계마다 개체를 따로 그렸더니 넘어가는 순간 한 번 사라졌다 다시 섰다. 들어온 것과
+ * 도는 것이 <b>같은 개체</b>로 보여야 "주워 모은 것이 모였다" 가 된다.
  *
- * 그래서 처음부터 원 위에 놓되, 1단계에서는 <b>반지름과 각도만 흐트러뜨린다</b>.
- * 2단계는 그 둘을 가지런한 값으로 되돌리는 일뿐이라 자리가 이어진다 —
- * 좌표를 재서 옮기는 것보다 단순하고, 화면 크기가 바뀌어도 따라온다.
+ * 그래서 자리를 한 식으로 쓰고, 단계가 바뀌면 그 식 안의 값만 바꾼다(styles.css 참고).
+ * 식이 그대로면 브라우저가 두 자리 사이를 알아서 이어 준다.
  */
-
-type Piece = {
-  name: WasteObject
-  /** 2단계에서 설 자리. 원 위의 각도다(도). 1단계에서는 여기서 scatter 만큼 비틀어 둔다. */
-  spread: number
-  /** 1단계의 흐트러짐 — 각도와 반지름을 얼마나 어긋나게 둘지 */
-  offA: number
-  offR: number
-  w: number
-  delay: number
-}
-
-const LEFT: Piece[] = [
-  { name: 'glove-purple', spread: 200, offA: -26, offR: 9, w: 15, delay: 1.5 },
-  { name: 'box-foam', spread: 250, offA: 18, offR: -7, w: 12, delay: 2.1 },
-  { name: 'cup-noodle', spread: 295, offA: -12, offR: 6, w: 9, delay: 2.6 },
-  { name: 'can-gatorade', spread: 150, offA: 22, offR: 8, w: 12, delay: 3.0 },
-  { name: 'ashtray-jar', spread: 110, offA: -18, offR: -5, w: 11, delay: 3.5 },
-  { name: 'box-adidas', spread: 60, offA: 14, offR: 10, w: 13, delay: 2.9 },
-  { name: 'can-coke-crushed', spread: 20, offA: -8, offR: -9, w: 12, delay: 3.8 },
-]
-
-const RIGHT: Piece[] = [
-  { name: 'straw-red', spread: 340, offA: 16, offR: 11, w: 18, delay: 1.9 },
-  { name: 'part-blue', spread: 30, offA: -20, offR: -6, w: 11, delay: 2.3 },
-  { name: 'handle-yellow', spread: 80, offA: 12, offR: 7, w: 9, delay: 2.8 },
-  { name: 'cup-coffee', spread: 130, offA: -24, offR: -10, w: 11, delay: 1.7 },
-  { name: 'cap-blue', spread: 180, offA: 10, offR: 5, w: 6, delay: 3.3 },
-  { name: 'lid-red', spread: 230, offA: -14, offR: 9, w: 14, delay: 2.5 },
-  { name: 'box-stack', spread: 280, offA: 20, offR: -8, w: 14, delay: 3.1 },
-]
-
-/** 개체가 다 들어오고(3.8s + 1.2s) 잠깐 머문 뒤 원으로 모인다. */
-const SETTLE_MS = 6200
+type Stage = 'out' | 'gather' | 'ring'
 
 export function Landing() {
-  const [ring, setRing] = useState(false)
+  const [stage, setStage] = useState<Stage>('out')
+
   useEffect(() => {
-    const t = setTimeout(() => setRing(true), SETTLE_MS)
-    return () => clearTimeout(t)
+    /* 첫 그림이 그려진 뒤에 켜야 자리가 이어진다. 같은 틀에서 바꾸면 브라우저가
+       두 자리를 한 값으로 보고 그냥 건너뛴다.
+
+       requestAnimationFrame 을 쓰다가 바꿨다. 탭이 가려진 채로 열리면 그 호출이
+       아예 안 불린다 — 그러면 ② 모이는 단계를 통째로 건너뛰고 개체가 갑자기 원에
+       나타난다. 시계는 가려져도 간다. */
+    const open = setTimeout(() => setStage('gather'), 60)
+    const spread = setTimeout(() => setStage('ring'), GATHER_MS)
+    return () => {
+      clearTimeout(open)
+      clearTimeout(spread)
+    }
   }, [])
 
-  const sides = [
-    { key: 'left' as const, items: LEFT },
-    { key: 'right' as const, items: RIGHT },
-  ]
-
   return (
-    <main className={'landing' + (ring ? ' landing--ring' : '')} aria-label="TOXIC EARTH ARCHIVE">
+    <main className={`landing landing--${stage}`} aria-label="TOXIC EARTH ARCHIVE">
       <h1 className="landing__logo">
         <Asset name="logo-tea-dark.webp" alt="TOXIC EARTH ARCHIVE" eager />
       </h1>
 
-      {sides.map((side) => (
-        <div key={side.key} className={`cupring cupring--${side.key}`}>
+      {SIDES.map((side) => (
+        <div key={side} className={`cupring cupring--${side}`}>
           <img className="cupring__cup" src={asset('cup-tea.webp')} alt="" aria-hidden="true" />
           <div className="cupring__orbit">
-            {side.items.map((p, i) => (
+            {piecesOf(side).map((p) => (
               <button
-                key={p.name + i}
-                className="cupring__item"
+                key={p.name}
+                className={'cupring__item' + (p.late ? ' is-late' : '')}
                 style={{
-                  ['--a' as string]: `${p.spread}deg`,
-                  ['--off-a' as string]: `${p.offA}deg`,
-                  ['--off-r' as string]: `${p.offR}vmin`,
-                  ['--w' as string]: `${p.w}vmin`,
+                  ['--a' as string]: `${p.angle}deg`,
+                  /* 단위 없는 숫자만 넘긴다. 단위를 붙여 인라인으로 박으면 단계가
+                     바뀌어도 안 바뀐다 — 인라인이 클래스 규칙을 이기기 때문이다. */
+                  ['--gx' as string]: p.gx,
+                  ['--gy' as string]: p.gy,
+                  ['--dx' as string]: p.dx,
+                  ['--dy' as string]: p.dy,
+                  ['--gw' as string]: p.gw,
+                  ['--w' as string]: p.w,
                   ['--in' as string]: `${p.delay}s`,
-                  ['--float' as string]: `${4.5 + (i % 4) * 0.7}s`,
+                  ['--float' as string]: `${p.float}s`,
                 }}
                 title={p.name}
               >
-                <img src={objectSrc(p.name)} alt="" aria-hidden="true" />
+                {/* 둥실거림은 이 칸이 맡는다. 자리를 옮기는 식과 섞이면 서로 덮어쓴다. */}
+                <span className="cupring__float">
+                  <img src={objectSrc(p.name)} alt="" aria-hidden="true" />
+                </span>
               </button>
             ))}
           </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { routePath, type Route } from '../lib/useRoute'
 
@@ -34,48 +34,19 @@ type Props = {
   /** 지금 보고 있는 페이지. 해당 항목이 검게 표시된다. */
   route: Route
   /**
-   * 'reveal' — 격자만 떠 있다가 올리면 메뉴가 펼쳐진다(아카이브).
-   * 'inline' — 격자가 왼쪽에 붙고 메뉴가 늘 보인다(가챠).
+   * 'reveal' — 격자가 가운데 떠 있다가 손을 올리면 그 아래로 메뉴가 펼쳐진다. 기본값.
+   * 'inline' — 격자가 왼쪽에 붙고 메뉴가 같은 줄에 늘 보인다(가챠 시안).
    */
   variant?: 'reveal' | 'inline'
 }
 
 export function Header({ route, variant = 'reveal' }: Props) {
   const [open, setOpen] = useState(false)
-  const [pinned, setPinned] = useState(false)
-  const rootRef = useRef<HTMLElement>(null)
-
-  // 눌러서 연 경우에는 바깥을 누르거나 Esc 를 눌러야 닫힌다.
-  useEffect(() => {
-    if (!pinned) return
-
-    const onPointerDown = (e: PointerEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) {
-        setPinned(false)
-        setOpen(false)
-      }
-    }
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setPinned(false)
-        setOpen(false)
-      }
-    }
-
-    addEventListener('pointerdown', onPointerDown)
-    addEventListener('keydown', onKeyDown)
-    return () => {
-      removeEventListener('pointerdown', onPointerDown)
-      removeEventListener('keydown', onKeyDown)
-    }
-  }, [pinned])
-
-  const active = variant === 'inline' || open || pinned
+  const active = variant === 'inline' || open
 
   return (
     <header
       className={`nav nav--${variant}${active ? ' is-active' : ''}`}
-      ref={rootRef}
       onPointerEnter={(e) => {
         // 터치는 탭으로만 연다. 손가락이 스치는 것까지 열리면 성가시다.
         if (e.pointerType === 'mouse') setOpen(true)
@@ -88,51 +59,57 @@ export function Header({ route, variant = 'reveal' }: Props) {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false)
       }}
     >
-      <button
-        type="button"
-        className="nav__toggle"
-        aria-expanded={active}
-        aria-controls="nav-menu"
-        /* 아이콘은 늘 랜딩으로 간다. 시안에서 상단 차례가
-           '아이콘(랜딩) About / Archiving / Magazine / Gacha' 라 이 자리가 곧 홈이다.
-           랜딩에 서 있을 때만 메뉴를 고정하는 스위치로 쓴다 — 거기서는 갈 데가 없다. */
-        onClick={() => {
-          if (route === 'landing') setPinned((v) => !v)
-          else location.hash = routePath('landing')
-        }}
-        title={route === 'landing' ? '메뉴' : '처음으로'}
-      >
-        {/* 시안은 1920 폭에서 28px 격자 — 1px 선 네 줄과 8px 칸 세 개로 딱 떨어진다.
-            선을 0.5 좌표에 놓아야 1px 이 픽셀 경계에 정확히 앉아 뭉개지지 않는다. */}
-        <svg className="nav__grid" viewBox="0 0 28 28" aria-hidden="true">
-          {/* 칸 안쪽. 활성일 때만 채워진다 */}
-          <rect className="nav__grid-fill" x="0" y="0" width="28" height="28" />
-          {/* 격자선은 두 상태에서 똑같다 */}
-          <path
-            className="nav__grid-lines"
-            d="M0.5 0V28M9.5 0V28M18.5 0V28M27.5 0V28M0 0.5H28M0 9.5H28M0 18.5H28M0 27.5H28"
-          />
-        </svg>
-        <span className="nav__label">메뉴</span>
-      </button>
+      {/* 아이콘과 메뉴를 한 칸에 묶는다 — 이 칸 전체가 손을 받는다.
+          아이콘만 받으면 그 옆으로 조금만 비껴도 메뉴가 닫혀 고를 수가 없다. */}
+      <div className="nav__hit">
+        <button
+          type="button"
+          className="nav__toggle"
+          aria-expanded={active}
+          aria-controls="nav-menu"
+          /* 아이콘은 <b>늘 랜딩으로 간다. 그것 하나만 한다.</b>
+             시안에서 상단 차례가 '아이콘(랜딩) About / Archiving / Magazine / Gacha' 라
+             이 자리가 곧 홈이다.
 
-      <nav className="nav__menu" id="nav-menu" aria-label="주요 메뉴">
-        {LINKS.map((link) => {
-          const current = link.route === route
-          return (
-            <a
-              key={link.label}
-              className={`nav__link${current ? ' is-current' : ''}`}
-              href={link.route ? routePath(link.route) : '#'}
-              aria-current={current ? 'page' : undefined}
-              aria-disabled={link.route ? undefined : true}
-              tabIndex={active ? undefined : -1}
-            >
-              {link.label}
-            </a>
-          )
-        })}
-      </nav>
+             랜딩에 서 있을 때만 메뉴를 고정하는 스위치로 쓰다가 걷어냈다. 같은 자리가
+             어디 서 있느냐에 따라 다른 일을 하면, 누르기 전에 무슨 일이 날지 모른다. */
+          onClick={() => {
+            location.hash = routePath('landing')
+          }}
+          title="처음으로"
+        >
+          {/* 시안은 1920 폭에서 28px 격자 — 1px 선 네 줄과 8px 칸 세 개로 딱 떨어진다.
+              선을 0.5 좌표에 놓아야 1px 이 픽셀 경계에 정확히 앉아 뭉개지지 않는다. */}
+          <svg className="nav__grid" viewBox="0 0 28 28" aria-hidden="true">
+            {/* 칸 안쪽. 활성일 때만 채워진다 */}
+            <rect className="nav__grid-fill" x="0" y="0" width="28" height="28" />
+            {/* 격자선은 두 상태에서 똑같다 */}
+            <path
+              className="nav__grid-lines"
+              d="M0.5 0V28M9.5 0V28M18.5 0V28M27.5 0V28M0 0.5H28M0 9.5H28M0 18.5H28M0 27.5H28"
+            />
+          </svg>
+          <span className="nav__label">메뉴</span>
+        </button>
+
+        <nav className="nav__menu" id="nav-menu" aria-label="주요 메뉴">
+          {LINKS.map((link) => {
+            const current = link.route === route
+            return (
+              <a
+                key={link.label}
+                className={`nav__link${current ? ' is-current' : ''}`}
+                href={link.route ? routePath(link.route) : '#'}
+                aria-current={current ? 'page' : undefined}
+                aria-disabled={link.route ? undefined : true}
+                tabIndex={active ? undefined : -1}
+              >
+                {link.label}
+              </a>
+            )
+          })}
+        </nav>
+      </div>
     </header>
   )
 }
