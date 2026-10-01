@@ -187,596 +187,596 @@
  ],
  "photo": [
   {
-   "name": "orange-01",
-   "color": "orange",
-   "ratio": 0.094,
+   "name": "Orange-01",
+   "color": "Orange",
+   "ratio": 0.088,
    "from": "Mask group.png"
   },
   {
-   "name": "blue-01",
-   "color": "blue",
+   "name": "Black-01",
+   "color": "Black",
    "ratio": 0.014,
    "from": "0ba83fb6-79eb-47b0-8015-1ef7d30892b7.jpg"
   },
   {
-   "name": "orange-02",
-   "color": "orange",
+   "name": "Orange-02",
+   "color": "Orange",
    "ratio": 0.179,
    "from": "2996f746-8740-44c1-b24d-11454b5c9d18.jpg"
   },
   {
-   "name": "red-01",
-   "color": "red",
+   "name": "Red-01",
+   "color": "Red",
    "ratio": 0.12,
    "from": "4e1c0197-b296-4cb4-a011-20a7c19cbff8.jpg"
   },
   {
-   "name": "blue-02",
-   "color": "blue",
+   "name": "Blue-01",
+   "color": "Blue",
    "ratio": 0.103,
    "from": "504900a1-9c47-4b33-a8c3-b6cedeb6cbdc.png"
   },
   {
-   "name": "red-02",
-   "color": "red",
+   "name": "Red-02",
+   "color": "Red",
    "ratio": 0.122,
    "from": "556eba7e-0912-4824-8e8c-f03a6943c9f3.jpg"
   },
   {
-   "name": "orange-03",
-   "color": "orange",
+   "name": "Orange-03",
+   "color": "Orange",
    "ratio": 0.47,
    "from": "604286e9-f210-45d8-bcec-a703e7e66d1a.jpg"
   },
   {
-   "name": "purple-01",
-   "color": "purple",
+   "name": "Purple-01",
+   "color": "Purple",
    "ratio": 0.147,
    "from": "704df240-0679-4b5f-af36-b289dc8cbe4d.png"
   },
   {
-   "name": "red-03",
-   "color": "red",
+   "name": "Red-03",
+   "color": "Red",
    "ratio": 0.435,
    "from": "786b7aea-f195-4fc9-a16d-3c866825f551.jpg"
   },
   {
-   "name": "gray-01",
-   "color": "gray",
+   "name": "Black-02",
+   "color": "Black",
    "ratio": 0,
    "from": "8ac5b05a-b6e2-4bdd-9cdf-dc1174156f12.png"
   },
   {
-   "name": "purple-02",
-   "color": "purple",
+   "name": "Purple-02",
+   "color": "Purple",
    "ratio": 0.559,
    "from": "Mask group 복사본 2.png"
   },
   {
-   "name": "red-04",
-   "color": "red",
+   "name": "Red-04",
+   "color": "Red",
    "ratio": 0.184,
    "from": "Mask group 복사본.png"
   },
   {
-   "name": "orange-04",
-   "color": "orange",
+   "name": "Orange-04",
+   "color": "Orange",
    "ratio": 0.68,
    "from": "Mask group-1 복사본.png"
   },
   {
-   "name": "red-05",
-   "color": "red",
+   "name": "Red-05",
+   "color": "Red",
    "ratio": 0.403,
    "from": "Mask group-1.png"
   },
   {
-   "name": "green-01",
-   "color": "green",
+   "name": "Green-01",
+   "color": "Green",
    "ratio": 0.099,
    "from": "Mask group-2 복사본.png"
   },
   {
-   "name": "blue-03",
-   "color": "blue",
+   "name": "Blue-02",
+   "color": "Blue",
    "ratio": 0.097,
    "from": "Mask group-2.png"
   },
   {
-   "name": "cyan-01",
-   "color": "cyan",
+   "name": "Blue-03",
+   "color": "Blue",
    "ratio": 0.304,
    "from": "Mask group-3 복사본.png"
   },
   {
-   "name": "orange-05",
-   "color": "orange",
+   "name": "Orange-05",
+   "color": "Orange",
    "ratio": 0.304,
    "from": "Mask group-3.png"
   },
   {
-   "name": "red-06",
-   "color": "red",
+   "name": "Red-06",
+   "color": "Red",
    "ratio": 0.084,
    "from": "Mask group-4 복사본.png"
   },
   {
-   "name": "orange-06",
-   "color": "orange",
+   "name": "Orange-06",
+   "color": "Orange",
    "ratio": 0.021,
    "from": "Mask group-4.png"
   },
   {
-   "name": "green-02",
-   "color": "green",
+   "name": "Green-02",
+   "color": "Green",
    "ratio": 0.029,
    "from": "Mask group-5 복사본.png"
   },
   {
-   "name": "red-07",
-   "color": "red",
+   "name": "Red-07",
+   "color": "Red",
    "ratio": 0.061,
    "from": "Mask group-5.png"
   },
   {
-   "name": "cyan-02",
-   "color": "cyan",
+   "name": "Black-03",
+   "color": "Black",
    "ratio": 0.015,
    "from": "Mask group-6.png"
   },
   {
-   "name": "red-08",
-   "color": "red",
+   "name": "Red-08",
+   "color": "Red",
    "ratio": 0.276,
    "from": "Mask group-7.png"
   },
   {
-   "name": "blue-04",
-   "color": "blue",
+   "name": "White-01",
+   "color": "White",
    "ratio": 0.019,
    "from": "Mask group.png"
   },
   {
-   "name": "green-03",
-   "color": "green",
+   "name": "Green-03",
+   "color": "Green",
    "ratio": 0.194,
    "from": "a7ccf1b0-73a8-4150-867e-c11e58867462.jpg"
   },
   {
-   "name": "orange-07",
-   "color": "orange",
+   "name": "Orange-07",
+   "color": "Orange",
    "ratio": 0.371,
    "from": "a8891756-bdfd-46e6-ad28-abe97f461caf.jpg"
   },
   {
-   "name": "red-09",
-   "color": "red",
+   "name": "Red-09",
+   "color": "Red",
    "ratio": 0.241,
    "from": "b131b95b-d3ac-49ba-9584-5558546858ca.jpg"
   },
   {
-   "name": "purple-03",
-   "color": "purple",
+   "name": "Purple-03",
+   "color": "Purple",
    "ratio": 0.502,
    "from": "bc0b36b1-a9f2-47df-b277-5c7a6b573566.png"
   },
   {
-   "name": "gray-02",
-   "color": "gray",
-   "ratio": 0,
+   "name": "White-02",
+   "color": "White",
+   "ratio": 0.001,
    "from": "c5763fd1-4de8-43d7-84fb-9830c7863288.jpg"
   },
   {
-   "name": "orange-08",
-   "color": "orange",
+   "name": "Orange-08",
+   "color": "Orange",
    "ratio": 0.136,
    "from": "d6f4cfed-b0c6-4ce3-98ef-5bdf30fd82f3.png"
   },
   {
-   "name": "pink-01",
-   "color": "pink",
+   "name": "Red-10",
+   "color": "Red",
    "ratio": 0.196,
    "from": "f1b3ff4a-546a-4b88-afc2-a24c18ff22f0.jpg"
   },
   {
-   "name": "purple-04",
-   "color": "purple",
+   "name": "Purple-04",
+   "color": "Purple",
    "ratio": 0.4,
    "from": "f9d29f10-2cf5-4351-abb1-9199d9496d7f.png"
   },
   {
-   "name": "pink-02",
-   "color": "pink",
+   "name": "Purple-05",
+   "color": "Purple",
    "ratio": 0.447,
    "from": "vldzm.png"
   },
   {
-   "name": "purple-05",
-   "color": "purple",
+   "name": "Purple-06",
+   "color": "Purple",
    "ratio": 0.327,
    "from": "우산.png"
   },
   {
-   "name": "orange-09",
-   "color": "orange",
+   "name": "Black-04",
+   "color": "Black",
    "ratio": 0.014,
    "from": "타이오.png"
   },
   {
-   "name": "blue-05",
-   "color": "blue",
+   "name": "Blue-04",
+   "color": "Blue",
    "ratio": 0.313,
    "from": "00f1039b-9776-4260-8aff-e0bbc013eb90.png"
   },
   {
-   "name": "yellow-01",
-   "color": "yellow",
+   "name": "Yellow-01",
+   "color": "Yellow",
    "ratio": 0.028,
    "from": "0f05fbcd-1c79-41f9-a13a-3e9c0d73213e.png"
   },
   {
-   "name": "red-10",
-   "color": "red",
+   "name": "Red-11",
+   "color": "Red",
    "ratio": 0.15,
    "from": "0f9c4082-ea16-49a9-8406-e94558b231ec.png"
   },
   {
-   "name": "blue-06",
-   "color": "blue",
+   "name": "Blue-05",
+   "color": "Blue",
    "ratio": 0.324,
    "from": "1eb88714-9494-4d6b-b359-481bbb3d2ef8.png"
   },
   {
-   "name": "orange-10",
-   "color": "orange",
+   "name": "Orange-09",
+   "color": "Orange",
    "ratio": 0.335,
    "from": "2c411763-8035-47f1-8f9f-88c153a5fae0.png"
   },
   {
-   "name": "green-04",
-   "color": "green",
+   "name": "Green-04",
+   "color": "Green",
    "ratio": 0.476,
    "from": "3c1e6f58-9050-4473-87e9-f6c730cbb979.png"
   },
   {
-   "name": "cyan-03",
-   "color": "cyan",
+   "name": "Blue-06",
+   "color": "Blue",
    "ratio": 0.227,
    "from": "4e0ee9fa-5b5c-45c9-89cb-b468d7a8f09e.png"
   },
   {
-   "name": "gray-03",
-   "color": "gray",
-   "ratio": 0,
+   "name": "White-03",
+   "color": "White",
+   "ratio": 0.002,
    "from": "564b12b6-2105-40a4-ba04-1b07d5d07be2.png"
   },
   {
-   "name": "red-11",
-   "color": "red",
+   "name": "Red-12",
+   "color": "Red",
    "ratio": 0.043,
    "from": "595692d8-299d-4bc5-b139-52c74f6ab56d.png"
   },
   {
-   "name": "green-05",
-   "color": "green",
+   "name": "Green-05",
+   "color": "Green",
    "ratio": 0.118,
    "from": "6d87b109-b31b-4046-b533-a148b55c71e4.png"
   },
   {
-   "name": "red-12",
-   "color": "red",
+   "name": "Red-13",
+   "color": "Red",
    "ratio": 0.478,
    "from": "8ae6d8fe-45e6-4c9a-a35d-ec49212c30af.png"
   },
   {
-   "name": "orange-11",
-   "color": "orange",
+   "name": "Orange-10",
+   "color": "Orange",
    "ratio": 0.166,
    "from": "8be7444c-6c27-4b07-849d-985c3defae80.png"
   },
   {
-   "name": "red-13",
-   "color": "red",
+   "name": "Red-14",
+   "color": "Red",
    "ratio": 0.413,
    "from": "Frame 2043688031.jpg"
   },
   {
-   "name": "pink-03",
-   "color": "pink",
+   "name": "Purple-07",
+   "color": "Purple",
    "ratio": 0.157,
    "from": "Frame 2043688033.jpg"
   },
   {
-   "name": "red-14",
-   "color": "red",
+   "name": "Red-15",
+   "color": "Red",
    "ratio": 0.713,
    "from": "Frame 2043688034.jpg"
   },
   {
-   "name": "pink-04",
-   "color": "pink",
+   "name": "Purple-08",
+   "color": "Purple",
    "ratio": 0.401,
    "from": "Frame 2043688035.jpg"
   },
   {
-   "name": "red-15",
-   "color": "red",
+   "name": "Red-16",
+   "color": "Red",
    "ratio": 0.118,
    "from": "Frame 2043688036.jpg"
   },
   {
-   "name": "orange-12",
-   "color": "orange",
+   "name": "Orange-11",
+   "color": "Orange",
    "ratio": 0.214,
    "from": "Frame 2043688039.jpg"
   },
   {
-   "name": "orange-13",
-   "color": "orange",
+   "name": "Orange-12",
+   "color": "Orange",
    "ratio": 0.15,
    "from": "Frame 2043688042.jpg"
   },
   {
-   "name": "orange-14",
-   "color": "orange",
+   "name": "Brown-01",
+   "color": "Brown",
    "ratio": 0.124,
    "from": "Frame 2043688044.jpg"
   },
   {
-   "name": "red-16",
-   "color": "red",
+   "name": "Red-17",
+   "color": "Red",
    "ratio": 0.043,
    "from": "Frame 2043688045.jpg"
   },
   {
-   "name": "orange-15",
-   "color": "orange",
+   "name": "Orange-13",
+   "color": "Orange",
    "ratio": 0.54,
    "from": "Frame 2043688046.jpg"
   },
   {
-   "name": "yellow-02",
-   "color": "yellow",
+   "name": "Yellow-02",
+   "color": "Yellow",
    "ratio": 0.47,
    "from": "Frame 2043688048.jpg"
   },
   {
-   "name": "yellow-03",
-   "color": "yellow",
+   "name": "Yellow-03",
+   "color": "Yellow",
    "ratio": 0.609,
    "from": "Frame 2043688049.jpg"
   },
   {
-   "name": "yellow-04",
-   "color": "yellow",
+   "name": "Yellow-04",
+   "color": "Yellow",
    "ratio": 0.184,
    "from": "Frame 2043688050.jpg"
   },
   {
-   "name": "yellow-05",
-   "color": "yellow",
+   "name": "Yellow-05",
+   "color": "Yellow",
    "ratio": 0.13,
    "from": "Frame 2043688051.jpg"
   },
   {
-   "name": "orange-16",
-   "color": "orange",
+   "name": "Orange-14",
+   "color": "Orange",
    "ratio": 0.237,
    "from": "Frame 2043688052.jpg"
   },
   {
-   "name": "yellow-06",
-   "color": "yellow",
+   "name": "Yellow-06",
+   "color": "Yellow",
    "ratio": 0.17,
    "from": "Frame 2043688054.jpg"
   },
   {
-   "name": "green-06",
-   "color": "green",
+   "name": "Green-06",
+   "color": "Green",
    "ratio": 0.021,
    "from": "Frame 2043688056.jpg"
   },
   {
-   "name": "green-07",
-   "color": "green",
+   "name": "Green-07",
+   "color": "Green",
    "ratio": 0.05,
    "from": "Frame 2043688057.jpg"
   },
   {
-   "name": "green-08",
-   "color": "green",
+   "name": "Green-08",
+   "color": "Green",
    "ratio": 0.243,
    "from": "Frame 2043688059.jpg"
   },
   {
-   "name": "cyan-04",
-   "color": "cyan",
+   "name": "Blue-07",
+   "color": "Blue",
    "ratio": 0.219,
    "from": "Frame 2043688060.jpg"
   },
   {
-   "name": "blue-07",
-   "color": "blue",
+   "name": "Blue-08",
+   "color": "Blue",
    "ratio": 0.136,
    "from": "Frame 2043688062.jpg"
   },
   {
-   "name": "blue-08",
-   "color": "blue",
+   "name": "Blue-09",
+   "color": "Blue",
    "ratio": 0.111,
    "from": "Frame 2043688064.jpg"
   },
   {
-   "name": "blue-09",
-   "color": "blue",
+   "name": "Blue-10",
+   "color": "Blue",
    "ratio": 0.295,
    "from": "Frame 2043688065.jpg"
   },
   {
-   "name": "purple-06",
-   "color": "purple",
+   "name": "Purple-09",
+   "color": "Purple",
    "ratio": 0.321,
    "from": "Frame 2043688068.jpg"
   },
   {
-   "name": "red-17",
-   "color": "red",
+   "name": "Red-18",
+   "color": "Red",
    "ratio": 0.219,
    "from": "Frame 2043688069.jpg"
   },
   {
-   "name": "yellow-07",
-   "color": "yellow",
+   "name": "Black-05",
+   "color": "Black",
    "ratio": 0.01,
    "from": "Frame 2043688070.jpg"
   },
   {
-   "name": "gray-04",
-   "color": "gray",
+   "name": "White-04",
+   "color": "White",
    "ratio": 0,
    "from": "Frame 2043688071.jpg"
   },
   {
-   "name": "orange-17",
-   "color": "orange",
+   "name": "Black-06",
+   "color": "Black",
    "ratio": 0.006,
    "from": "Frame 2043688167.jpg"
   },
   {
-   "name": "red-18",
-   "color": "red",
+   "name": "Red-19",
+   "color": "Red",
    "ratio": 0.09,
    "from": "Frame 2043688170.jpg"
   },
   {
-   "name": "gray-05",
-   "color": "gray",
+   "name": "Black-07",
+   "color": "Black",
    "ratio": 0,
    "from": "Frame 2043688171.jpg"
   },
   {
-   "name": "orange-18",
-   "color": "orange",
+   "name": "Orange-15",
+   "color": "Orange",
    "ratio": 0.102,
    "from": "Frame 2043688172.jpg"
   },
   {
-   "name": "green-09",
-   "color": "green",
+   "name": "Green-09",
+   "color": "Green",
    "ratio": 0.471,
    "from": "Frame 2043688173.jpg"
   },
   {
-   "name": "green-10",
-   "color": "green",
+   "name": "Green-10",
+   "color": "Green",
    "ratio": 0.056,
    "from": "Frame 2043688174.jpg"
   },
   {
-   "name": "orange-19",
-   "color": "orange",
+   "name": "Orange-16",
+   "color": "Orange",
    "ratio": 0.125,
    "from": "Frame 2043688176.jpg"
   },
   {
-   "name": "gray-06",
-   "color": "gray",
+   "name": "Black-08",
+   "color": "Black",
    "ratio": 0,
    "from": "Frame 2043688177.jpg"
   },
   {
-   "name": "orange-20",
-   "color": "orange",
+   "name": "Orange-17",
+   "color": "Orange",
    "ratio": 0.088,
    "from": "Frame 2043688178.jpg"
   },
   {
-   "name": "green-11",
-   "color": "green",
+   "name": "Green-11",
+   "color": "Green",
    "ratio": 0.096,
    "from": "Frame 2043688179.jpg"
   },
   {
-   "name": "blue-10",
-   "color": "blue",
+   "name": "Blue-11",
+   "color": "Blue",
    "ratio": 0.35,
    "from": "Frame 2043688180.jpg"
   },
   {
-   "name": "gray-07",
-   "color": "gray",
-   "ratio": 0,
+   "name": "White-05",
+   "color": "White",
+   "ratio": 0.001,
    "from": "Frame 2043688181.jpg"
   },
   {
-   "name": "yellow-08",
-   "color": "yellow",
+   "name": "Yellow-07",
+   "color": "Yellow",
    "ratio": 0.059,
    "from": "Frame 2043688182.png"
   },
   {
-   "name": "orange-21",
-   "color": "orange",
+   "name": "Orange-18",
+   "color": "Orange",
    "ratio": 0.468,
    "from": "Frame 2043688183.png"
   },
   {
-   "name": "orange-22",
-   "color": "orange",
+   "name": "Orange-19",
+   "color": "Orange",
    "ratio": 0.088,
    "from": "Frame 2043688186.png"
   },
   {
-   "name": "orange-23",
-   "color": "orange",
+   "name": "Orange-20",
+   "color": "Orange",
    "ratio": 0.122,
    "from": "Frame 2043688187.png"
   },
   {
-   "name": "blue-11",
-   "color": "blue",
+   "name": "Blue-12",
+   "color": "Blue",
    "ratio": 0.074,
    "from": "Frame 2043688188.png"
   },
   {
-   "name": "orange-24",
-   "color": "orange",
+   "name": "Orange-21",
+   "color": "Orange",
    "ratio": 0.1,
    "from": "Frame 2043688189.png"
   },
   {
-   "name": "yellow-09",
-   "color": "yellow",
+   "name": "Yellow-08",
+   "color": "Yellow",
    "ratio": 0.24,
    "from": "a93a8be0-0c03-40d8-afb5-f958eaeb93f3.png"
   },
   {
-   "name": "orange-25",
-   "color": "orange",
+   "name": "Red-20",
+   "color": "Red",
    "ratio": 0.068,
    "from": "adb23c16-dc04-4e92-ad61-08cef496d13b.png"
   },
   {
-   "name": "red-19",
-   "color": "red",
+   "name": "Red-21",
+   "color": "Red",
    "ratio": 0.131,
    "from": "b2d86be8-e80f-4e8f-864e-653067506491.png"
   },
   {
-   "name": "orange-26",
-   "color": "orange",
+   "name": "Orange-22",
+   "color": "Orange",
    "ratio": 0.495,
    "from": "be19be2d-c2e1-4018-a1e9-c4cc7caa54f4.png"
   },
   {
-   "name": "blue-12",
-   "color": "blue",
+   "name": "Blue-13",
+   "color": "Blue",
    "ratio": 0.049,
    "from": "becd2ca0-a312-44ae-a984-615029e33936.png"
   },
   {
-   "name": "yellow-10",
-   "color": "yellow",
+   "name": "Yellow-09",
+   "color": "Yellow",
    "ratio": 0.233,
    "from": "e5f152c7-4998-4933-a152-72a7f8df17b8.png"
   }

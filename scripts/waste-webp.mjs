@@ -9,6 +9,7 @@
 import { mkdir, readdir, writeFile, readFile } from 'node:fs/promises'
 import { join, parse } from 'node:path'
 import sharp from 'sharp'
+import { COLORS } from './waste-color.mjs'
 
 const SRC = 'assets-src/waste'
 const OUT = 'public/waste'
@@ -52,7 +53,10 @@ await writeFile(
  * <b>사진(photo)</b>은 배경이 흑백이고 버려진 것만 색이 남은 길거리 사진이다.
  * 그래서 \`color\` 가 곧 분류다 — 색으로 고르면 화면의 톤이 맞는다.
  */
-export type WasteColor = ${[...new Set(manifest.photo.map((p) => p.color))].sort().map((c) => `'${c}'`).join(' | ')}
+export type WasteColor = ${COLORS.map((c) => `'${c}'`).join(' | ')}
+
+/** 시안의 Similar Colors 목록 순서. 알파벳순으로 세우면 화면의 차례와 어긋난다. */
+export const WASTE_COLORS: WasteColor[] = [${COLORS.map((c) => `'${c}'`).join(', ')}]
 
 export const WASTE_OBJECTS = [
 ${manifest.object.map((o) => `  '${o.name}',`).join('\n')}
