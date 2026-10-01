@@ -429,96 +429,82 @@
 
 
 /* ── 랜딩 ── */
-/* 빈 검은 화면에서 로고가 떠오르고, 양옆에서 개체가 하나씩 들어와 로고 둘레에 쌓인다. */
+/* 1단계는 검은 바탕, 2단계는 흰 바탕. 개체는 한 벌이고 반지름과 각도만 달라진다. */
 .landing {
   position: fixed; inset: 0; background: #000; overflow: hidden;
   display: grid; place-items: center;
+  transition: background 1.1s ease;
 }
-/* 로고는 화면 가로의 3분의 1쯤. 시안에서 개체가 로고만큼 크다. */
+.landing--ring { background: #fff; }
+
+/* 로고 두 벌을 겹쳐 두고 흐리기만 바꾼다. 바꿔 끼우면 한 번 깜빡인다. */
 .landing__logo {
-  margin: 0; z-index: 2; width: min(24rem, 34vw);
+  margin: 0; z-index: 3; width: min(24rem, 34vw); position: relative;
   opacity: 0; animation: landing-logo 2.4s ease-out .3s forwards;
 }
-.landing__logo img { width: 100%; height: auto; display: block; }
+.landing__logo img { width: 100%; height: auto; display: block; transition: opacity .9s ease; }
+.landing__logo img:last-child { position: absolute; inset: 0; opacity: 0; }
+.landing--ring .landing__logo img:first-child { opacity: 0; }
+.landing--ring .landing__logo img:last-child { opacity: 1; }
 @keyframes landing-logo { to { opacity: 1; } }
 
-/* 자리는 바깥이 잡고 흔들림은 안쪽이 맡는다 — 둘 다 translate 를 쓰기 때문이다. */
-.landing__slot {
-  position: absolute; z-index: 1; display: block;
-  translate: -50% -50%;
+/* 컵은 2단계에서만 보인다. 화면 밖으로 반쯤 걸친다 — 시안에서 양 끝이 잘려 있다. */
+.cupring {
+  position: absolute; top: 50%; width: 58vmin; aspect-ratio: 1; translate: 0 -50%;
+}
+.cupring--left { left: -14vmin; }
+.cupring--right { right: -14vmin; }
+.cupring__cup {
+  position: absolute; inset: 0; width: 100%; height: auto;
+  opacity: 0; transition: opacity 1.1s ease;
+}
+.landing--ring .cupring__cup { opacity: 1; }
+
+/* 묶음은 2단계에서만 돈다. */
+.cupring__orbit { position: absolute; inset: 0; }
+.landing--ring .cupring__orbit { animation: cup-spin 46s linear infinite; }
+.landing--ring .cupring--right .cupring__orbit { animation-direction: reverse; }
+
+/* 1단계는 제 각도에서 비틀린 자리(--off-a, --off-r), 2단계는 가지런한 자리.
+   둘 다 같은 transform 식이라 사이가 이어진다. */
+.cupring__item {
+  position: absolute; left: 50%; top: 50%; width: var(--w);
+  margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2);
+  background: none; border: none; padding: 0; cursor: pointer;
+  --r: 34vmin;
+  transform: rotate(calc(var(--a) + var(--off-a))) translate(calc(var(--r) + var(--off-r)))
+    rotate(calc(-1 * (var(--a) + var(--off-a))));
+  transition: transform 1.4s cubic-bezier(.22, .61, .36, 1);
   opacity: 0;
-  animation-duration: 1.2s;
-  animation-timing-function: cubic-bezier(.22, .61, .36, 1);
-  animation-fill-mode: forwards;
+  animation: landing-in 1.2s cubic-bezier(.22, .61, .36, 1) var(--in) forwards;
 }
-.landing__slot--left { animation-name: landing-in-left; }
-.landing__slot--right { animation-name: landing-in-right; }
-.landing__obj {
+.landing--ring .cupring__item {
+  --off-a: 0deg;
+  --off-r: 0vmin;
+}
+@keyframes landing-in { to { opacity: 1; } }
+
+/* 묶음이 도는 만큼 그림은 거꾸로 돌아 똑바로 선다. 1단계에서는 둥실거리기만 한다. */
+.cupring__item img {
   width: 100%; height: auto; display: block;
-  animation: landing-float ease-in-out infinite;
+  animation: landing-float var(--float) ease-in-out infinite;
+  transition: scale .3s ease, filter .3s ease;
 }
-@keyframes landing-in-left {
-  from { opacity: 0; translate: calc(-50% - 60vw) -50%; }
-  to { opacity: 1; translate: -50% -50%; }
-}
-@keyframes landing-in-right {
-  from { opacity: 0; translate: calc(-50% + 60vw) -50%; }
-  to { opacity: 1; translate: -50% -50%; }
-}
+.landing--ring .cupring__item img { animation: cup-spin 46s linear infinite reverse; }
+.landing--ring .cupring--right .cupring__item img { animation-direction: normal; }
+
+/* 손을 올리면 전부 멈춘다 — animation-play-state 라 돌던 각도 그대로 선다. */
+.landing--ring:hover .cupring__orbit,
+.landing--ring:hover .cupring__item img { animation-play-state: paused; }
+.landing--ring:hover .cupring__item:not(:hover) img { filter: blur(3px); opacity: .5; }
+.cupring__item:hover img { scale: 1.5; }
+.cupring__item:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 8px; }
+
+@keyframes cup-spin { to { rotate: 360deg; } }
 @keyframes landing-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .landing__logo, .landing__slot { animation: none; opacity: 1; }
-  .landing__obj { animation: none; }
-}
-
-
-/* ── 랜딩 2단계 — 컵 둘레를 도는 개체들 ── */
-/* 바탕이 희어지고 개체가 원 위에 선다. 왼쪽은 반시계, 오른쪽은 시계로 돈다. */
-.landing--ring { background: #fff; transition: background 1.2s ease; }
-.landing--ring .landing__logo { z-index: 3; }
-
-.cupring {
-  position: absolute; top: 50%; width: 58vmin; aspect-ratio: 1;
-  translate: 0 -50%;
-}
-/* 컵은 화면 밖으로 반쯤 걸친다 — 시안에서 양 끝이 잘려 있다. */
-.cupring--left { left: -14vmin; }
-.cupring--right { right: -14vmin; }
-.cupring__cup { position: absolute; inset: 0; width: 100%; height: auto; }
-
-.cupring__orbit {
-  position: absolute; inset: 0;
-  animation: cup-spin 46s linear infinite;
-}
-.cupring--right .cupring__orbit { animation-direction: reverse; }
-
-.cupring__item {
-  position: absolute; left: 50%; top: 50%; width: 13vmin;
-  background: none; border: none; padding: 0; cursor: pointer;
-  /* 원 위의 자리. 반지름은 컵 가장자리 바깥이다. */
-  transform: rotate(var(--a)) translate(34vmin) rotate(calc(-1 * var(--a)));
-  margin: -6.5vmin 0 0 -6.5vmin;
-}
-/* 묶음이 도는 만큼 그림은 거꾸로 돌아 똑바로 선다. */
-.cupring__item img {
-  width: 100%; height: auto; display: block;
-  animation: cup-spin 46s linear infinite reverse;
-  transition: scale .3s ease, filter .3s ease;
-}
-.cupring--right .cupring__item img { animation-direction: normal; }
-
-/* 하나에 손을 올리면 전부 멈춘다. animation-play-state 라 돌던 각도 그대로 선다. */
-.landing--ring:hover .cupring__orbit,
-.landing--ring:hover .cupring__item img { animation-play-state: paused; }
-.landing--ring:hover .cupring__item:not(:hover) img { filter: blur(3px); opacity: .55; }
-.cupring__item:hover img { scale: 1.45; }
-.cupring__item:focus-visible { outline: 2px solid #111; outline-offset: 4px; border-radius: 8px; }
-
-@keyframes cup-spin { to { rotate: 360deg; } }
-
-@media (prefers-reduced-motion: reduce) {
-  .cupring__orbit, .cupring__item img { animation: none; }
+  .landing__logo, .cupring__item, .cupring__orbit, .cupring__item img { animation: none; opacity: 1; }
 }
