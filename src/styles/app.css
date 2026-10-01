@@ -473,3 +473,52 @@
   .landing__logo, .landing__slot { animation: none; opacity: 1; }
   .landing__obj { animation: none; }
 }
+
+
+/* ── 랜딩 2단계 — 컵 둘레를 도는 개체들 ── */
+/* 바탕이 희어지고 개체가 원 위에 선다. 왼쪽은 반시계, 오른쪽은 시계로 돈다. */
+.landing--ring { background: #fff; transition: background 1.2s ease; }
+.landing--ring .landing__logo { z-index: 3; }
+
+.cupring {
+  position: absolute; top: 50%; width: 58vmin; aspect-ratio: 1;
+  translate: 0 -50%;
+}
+/* 컵은 화면 밖으로 반쯤 걸친다 — 시안에서 양 끝이 잘려 있다. */
+.cupring--left { left: -14vmin; }
+.cupring--right { right: -14vmin; }
+.cupring__cup { position: absolute; inset: 0; width: 100%; height: auto; }
+
+.cupring__orbit {
+  position: absolute; inset: 0;
+  animation: cup-spin 46s linear infinite;
+}
+.cupring--right .cupring__orbit { animation-direction: reverse; }
+
+.cupring__item {
+  position: absolute; left: 50%; top: 50%; width: 13vmin;
+  background: none; border: none; padding: 0; cursor: pointer;
+  /* 원 위의 자리. 반지름은 컵 가장자리 바깥이다. */
+  transform: rotate(var(--a)) translate(34vmin) rotate(calc(-1 * var(--a)));
+  margin: -6.5vmin 0 0 -6.5vmin;
+}
+/* 묶음이 도는 만큼 그림은 거꾸로 돌아 똑바로 선다. */
+.cupring__item img {
+  width: 100%; height: auto; display: block;
+  animation: cup-spin 46s linear infinite reverse;
+  transition: scale .3s ease, filter .3s ease;
+}
+.cupring--right .cupring__item img { animation-direction: normal; }
+
+/* 하나에 손을 올리면 전부 멈춘다. animation-play-state 라 돌던 각도 그대로 선다. */
+.landing--ring:hover .cupring__orbit,
+.landing--ring:hover .cupring__item img { animation-play-state: paused; }
+.landing--ring:hover .cupring__item:not(:hover) img { filter: blur(3px); opacity: .55; }
+.cupring__item:hover img { scale: 1.45; }
+.cupring__item:focus-visible { outline: 2px solid #111; outline-offset: 4px; border-radius: 8px; }
+
+@keyframes cup-spin { to { rotate: 360deg; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cupring__orbit, .cupring__item img { animation: none; }
+}

@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Asset } from '../components/Asset'
+import { asset } from '../lib/assets'
 import { objectSrc, type WasteObject } from '../lib/waste'
 
 /**
@@ -12,7 +14,10 @@ import { objectSrc, type WasteObject } from '../lib/waste'
  * 들어오는 때를 하나씩 어긋나게 둔 이유: 한꺼번에 들어오면 '화면이 바뀌었다' 로 읽히고,
  * 차례로 들어오면 '하나씩 주워 모은 것' 으로 읽힌다. 주제가 그쪽이다.
  *
- * 자리는 가장자리가 아니라 <b>로고 둘레</b>다. 멀찍이 떨어뜨려 두면 배경 장식이 되는데,
+ * 그 다음이 2단계다 — 바탕이 희어지고, 떠 있던 개체들이 <b>양쪽 컵 둘레로 원을 그리며</b>
+ * 왼쪽은 반시계, 오른쪽은 시계로 돈다. 하나에 손을 올리면 전부 멈추고 그것만 커진다.
+ *
+ * 1단계 자리는 가장자리가 아니라 <b>로고 둘레</b>다. 멀찍이 떨어뜨려 두면 배경 장식이 되는데,
  * 시안에서는 로고를 반쯤 덮으며 가운데로 몰려 있다 — 쌓인 것 위에 이름이 얹힌 모양이다.
  */
 
@@ -47,7 +52,54 @@ const PIECES: Piece[] = [
   { name: 'cap-blue', x: 57, y: 85, w: 9, rot: 14, delay: 3.7, from: 'right' },
 ]
 
+/** 1단계에서 2단계로 넘어가는 때. 마지막 개체가 들어오고(3.7s + 1.2s) 잠깐 머문 뒤다. */
+const SETTLE_MS = 6200
+
 export function Landing() {
+  /* 두 단계를 한 화면에서 바꾼다. 페이지를 나누면 들어오던 개체가 한 번 사라졌다 다시 선다. */
+  const [ring, setRing] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setRing(true), SETTLE_MS)
+    return () => clearTimeout(t)
+  }, [])
+
+  const half = Math.ceil(PIECES.length / 2)
+  const sides = [
+    { key: 'left' as const, items: PIECES.slice(0, half) },
+    { key: 'right' as const, items: PIECES.slice(half) },
+  ]
+
+  if (ring) {
+    return (
+      <main className="landing landing--ring" aria-label="TOXIC EARTH ARCHIVE">
+        <h1 className="landing__logo">
+          <Asset name="logo-tea-dark.webp" alt="TOXIC EARTH ARCHIVE" eager />
+        </h1>
+
+        {sides.map((side) => (
+          <div key={side.key} className={`cupring cupring--${side.key}`}>
+            <img className="cupring__cup" src={asset('cup-tea.webp')} alt="" aria-hidden="true" />
+            <div className="cupring__orbit">
+              {side.items.map((p, i) => {
+                const a = (360 / side.items.length) * i
+                return (
+                  <button
+                    key={p.name + i}
+                    className="cupring__item"
+                    style={{ ['--a' as string]: `${a}deg` }}
+                    title={p.name}
+                  >
+                    <img src={objectSrc(p.name)} alt="" aria-hidden="true" />
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </main>
+    )
+  }
+
   return (
     <main className="landing" aria-label="TOXIC EARTH ARCHIVE">
       {/* 로고는 글자가 아니라 그림이다 — O 가 점 격자로 돼 있어 서체로는 못 만든다. */}
