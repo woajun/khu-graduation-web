@@ -35,3 +35,7 @@ reference/*.mov
 # 원본이 필요하면 드라이브에서 다시 받는다. 저장소는 한 번 무거워지면 되돌리기 어렵다.
 assets-src/waste/
 drive-download-*/
+
+# 피그마에서 내보낸 시안 PNG — 읽고 나면 버리는 것이라 저장소에 안 올린다.
+_figma/*.png
+_figma/*.jpg

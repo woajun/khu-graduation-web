@@ -8,6 +8,7 @@
  */
 import { mkdir, readdir, writeFile, readFile } from 'node:fs/promises'
 import { join, parse } from 'node:path'
+import { stat } from 'node:fs/promises'
 import sharp from 'sharp'
 import { COLORS } from './waste-color.mjs'
 
@@ -21,6 +22,20 @@ const JOB = [
   ['photo', 640, 72, 'photo/thumb'],
 ]
 
+const FORCE = process.argv.includes('--force')
+
+/** 이미 있는 파일의 크기. 없으면 null — 그러면 굽는다. */
+async function probe(file) {
+  try {
+    const { width, height } = await sharp(file).metadata()
+    /* metadata().size 는 파일에서 읽을 때 비어 있다. 줄어든 양을 세려면 실제 크기가 필요하다. */
+    const { size } = await stat(file)
+    return { width, height, size }
+  } catch {
+    return null
+  }
+}
+
 const sizes = {}
 let before = 0
 let after = 0
@@ -29,11 +44,17 @@ for (const [dir, width, quality, outDir] of JOB) {
   await mkdir(join(OUT, outDir), { recursive: true })
   for (const f of (await readdir(join(SRC, dir))).sort()) {
     if (!/\.(png|jpe?g)$/i.test(f)) continue
-    const buf = await readFile(join(SRC, dir, f))
     const name = parse(f).name
-    const img = sharp(buf).resize({ width, withoutEnlargement: true })
-    const info = await img.webp({ quality, alphaQuality: 100, effort: 6 })
-      .toFile(join(OUT, outDir, name + '.webp'))
+    const dest = join(OUT, outDir, name + '.webp')
+    const buf = await readFile(join(SRC, dir, f))
+
+    /* 이미 구운 것은 건너뛴다. 목록만 다시 쓰려고 99장을 다시 굽느라 4분을 기다릴 이유가 없다.
+       원본을 갈아끼웠으면 `yarn assets:waste --force` 로 다시 굽는다. */
+    let info = FORCE ? null : await probe(dest)
+    if (!info) {
+      info = await sharp(buf).resize({ width, withoutEnlargement: true })
+        .webp({ quality, alphaQuality: 100, effort: 6 }).toFile(dest)
+    }
     if (outDir !== 'photo/thumb') {
       before += buf.length
       after += info.size
@@ -44,6 +65,15 @@ for (const [dir, width, quality, outDir] of JOB) {
 
 /* 화면이 쓸 목록. 손으로 적으면 파일을 지운 뒤에도 목록에 남아 깨진 그림이 뜬다. */
 const manifest = JSON.parse(await readFile(join(SRC, '_manifest.json'), 'utf8'))
+
+/* 시안처럼 사진마다 번호를 붙인다(No.001~). 무엇을 뜻하는 번호는 아니지만 <b>한 번 정하면
+   안 바뀌어야</b> 한다 — 다시 구울 때마다 번호가 흔들리면 주소도 캡션도 같이 흔들린다.
+   그래서 난수가 아니라 정해진 차례(색 목록 순 → 이름 순)로 센다. */
+manifest.photo.sort(
+  (a, b) => COLORS.indexOf(a.color) - COLORS.indexOf(b.color) || a.name.localeCompare(b.name),
+)
+manifest.photo.forEach((p, i) => { p.no = i + 1 })
+await writeFile('scripts/waste-manifest.json', JSON.stringify(manifest, null, 1))
 await writeFile(
   'src/lib/waste.ts',
   `/**
@@ -64,8 +94,8 @@ ${manifest.object.map((o) => `  '${o.name}',`).join('\n')}
 
 export type WasteObject = (typeof WASTE_OBJECTS)[number]
 
-export const WASTE_PHOTOS: { name: string; color: WasteColor; ext: string }[] = [
-${manifest.photo.map((p) => `  { name: '${p.name}', color: '${p.color}', ext: '${p.from.toLowerCase().endsWith('.png') ? 'png' : 'jpg'}' },`).join('\n')}
+export const WASTE_PHOTOS: { no: number; name: string; color: WasteColor }[] = [
+${manifest.photo.map((p) => `  { no: ${p.no}, name: '${p.name}', color: '${p.color}' },`).join('\n')}
 ]
 
 /** 구운 이미지의 실제 크기. img 에 박아 두면 뜨는 동안 글이 밀리지 않는다. */
@@ -81,6 +111,11 @@ export const photoSrc = (name: string) => \`\${base}waste/photo/\${name}.webp\`
 export const thumbSrc = (name: string) => \`\${base}waste/photo/thumb/\${name}.webp\`
 
 export const photosOf = (color: WasteColor) => WASTE_PHOTOS.filter((p) => p.color === color)
+
+/** 시안의 캡션 모양 그대로. ( No.018 ) */
+export const photoLabel = (no: number) => \`( No.\${String(no).padStart(3, '0')} )\`
+
+export const photoByNo = (no: number) => WASTE_PHOTOS.find((p) => p.no === no)
 `,
 )
 
