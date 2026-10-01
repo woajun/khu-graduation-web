@@ -434,8 +434,9 @@
   position: fixed; inset: 0; background: #000; overflow: hidden;
   display: grid; place-items: center;
 }
+/* 로고는 화면 가로의 3분의 1쯤. 시안에서 개체가 로고만큼 크다. */
 .landing__logo {
-  margin: 0; z-index: 2; width: min(30rem, 46vw);
+  margin: 0; z-index: 2; width: min(24rem, 34vw);
   opacity: 0; animation: landing-logo 2.4s ease-out .3s forwards;
 }
 .landing__logo img { width: 100%; height: auto; display: block; }

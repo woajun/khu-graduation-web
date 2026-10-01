@@ -18,7 +18,9 @@ import { objectSrc, type WasteObject } from '../lib/waste'
 
 type Piece = {
   name: WasteObject
-  /** 화면 기준 퍼센트. 개체의 가운데가 이 자리에 온다. */
+  /** 화면 기준 퍼센트. 개체의 가운데가 이 자리에 온다.
+   *  크기(w)는 <b>로고에 견줘</b> 잡았다 — 로고가 화면의 3분의 1쯤이고 개체는 그 절반에서
+   *  비슷한 크기까지다. 작게 두면 배경 무늬가 되고, 주제는 이것들이 주인공인 쪽이다. */
   x: number
   y: number
   w: number
@@ -29,20 +31,20 @@ type Piece = {
 }
 
 const PIECES: Piece[] = [
-  { name: 'glove-purple', x: 14, y: 46, w: 17, rot: -14, delay: 1.5, from: 'left' },
-  { name: 'box-foam', x: 17, y: 24, w: 13, rot: 12, delay: 2.1, from: 'left' },
-  { name: 'cup-noodle', x: 29, y: 28, w: 9, rot: -6, delay: 2.6, from: 'left' },
-  { name: 'can-gatorade', x: 12, y: 70, w: 13, rot: 8, delay: 3.0, from: 'left' },
-  { name: 'ashtray-jar', x: 26, y: 72, w: 12, rot: -5, delay: 3.5, from: 'left' },
-  { name: 'box-adidas', x: 36, y: 82, w: 14, rot: 6, delay: 2.9, from: 'left' },
-  { name: 'straw-red', x: 46, y: 9, w: 22, rot: -4, delay: 1.9, from: 'right' },
-  { name: 'part-blue', x: 62, y: 24, w: 11, rot: 9, delay: 2.3, from: 'right' },
-  { name: 'handle-yellow', x: 84, y: 28, w: 9, rot: -10, delay: 2.8, from: 'right' },
-  { name: 'cup-coffee', x: 60, y: 48, w: 11, rot: 5, delay: 1.7, from: 'right' },
-  { name: 'cap-blue', x: 73, y: 24, w: 5, rot: 0, delay: 3.3, from: 'right' },
-  { name: 'lid-red', x: 68, y: 72, w: 15, rot: -7, delay: 2.5, from: 'right' },
-  { name: 'box-stack', x: 86, y: 60, w: 15, rot: 7, delay: 3.1, from: 'right' },
-  { name: 'cap-blue', x: 56, y: 82, w: 7, rot: 14, delay: 3.7, from: 'right' },
+  { name: 'glove-purple', x: 13, y: 45, w: 22, rot: -14, delay: 1.5, from: 'left' },
+  { name: 'box-foam', x: 16, y: 22, w: 17, rot: 12, delay: 2.1, from: 'left' },
+  { name: 'cup-noodle', x: 30, y: 27, w: 12, rot: -6, delay: 2.6, from: 'left' },
+  { name: 'can-gatorade', x: 11, y: 71, w: 17, rot: 8, delay: 3.0, from: 'left' },
+  { name: 'ashtray-jar', x: 27, y: 74, w: 15, rot: -5, delay: 3.5, from: 'left' },
+  { name: 'box-adidas', x: 38, y: 85, w: 18, rot: 6, delay: 2.9, from: 'left' },
+  { name: 'straw-red', x: 45, y: 8, w: 34, rot: -4, delay: 1.9, from: 'right' },
+  { name: 'part-blue', x: 63, y: 22, w: 14, rot: 9, delay: 2.3, from: 'right' },
+  { name: 'handle-yellow', x: 85, y: 27, w: 12, rot: -10, delay: 2.8, from: 'right' },
+  { name: 'cup-coffee', x: 61, y: 47, w: 14, rot: 5, delay: 1.7, from: 'right' },
+  { name: 'cap-blue', x: 74, y: 22, w: 7, rot: 0, delay: 3.3, from: 'right' },
+  { name: 'lid-red', x: 69, y: 73, w: 19, rot: -7, delay: 2.5, from: 'right' },
+  { name: 'box-stack', x: 87, y: 59, w: 20, rot: 7, delay: 3.1, from: 'right' },
+  { name: 'cap-blue', x: 57, y: 85, w: 9, rot: 14, delay: 3.7, from: 'right' },
 ]
 
 export function Landing() {
