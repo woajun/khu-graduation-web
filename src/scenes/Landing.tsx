@@ -1,5 +1,5 @@
 import { Asset } from '../components/Asset'
-import { WASTE_OBJECTS, objectSrc, type WasteObject } from '../lib/waste'
+import { objectSrc, type WasteObject } from '../lib/waste'
 
 /**
  * 랜딩 — 아이콘을 누르면 오는 자리.
@@ -9,25 +9,40 @@ import { WASTE_OBJECTS, objectSrc, type WasteObject } from '../lib/waste'
  *   ② 로고가 투명에서 불투명으로 천천히 나타난다
  *   ③ 양옆에서 개체가 하나씩, 각각 다른 타이밍으로 들어와 둥실거린다
  *
- * 들어오는 타이밍을 하나씩 다르게 둔 이유: 한꺼번에 들어오면 '화면이 바뀌었다' 로 읽히고,
+ * 들어오는 때를 하나씩 어긋나게 둔 이유: 한꺼번에 들어오면 '화면이 바뀌었다' 로 읽히고,
  * 차례로 들어오면 '하나씩 주워 모은 것' 으로 읽힌다. 주제가 그쪽이다.
+ *
+ * 자리는 가장자리가 아니라 <b>로고 둘레</b>다. 멀찍이 떨어뜨려 두면 배경 장식이 되는데,
+ * 시안에서는 로고를 반쯤 덮으며 가운데로 몰려 있다 — 쌓인 것 위에 이름이 얹힌 모양이다.
  */
 
-/** 왼쪽에서 들어오는 것과 오른쪽에서 들어오는 것. 시안의 개체 배치를 눈으로 옮겼다. */
-const LEFT: { name: WasteObject; top: number; w: number; delay: number }[] = [
-  { name: 'box-foam', top: 14, w: 15, delay: 1.6 },
-  { name: 'glove-purple', top: 40, w: 17, delay: 2.4 },
-  { name: 'can-pocari', top: 62, w: 11, delay: 3.1 },
-  { name: 'box-adidas', top: 74, w: 16, delay: 2.0 },
-  { name: 'can-gatorade', top: 30, w: 12, delay: 3.6 },
-]
+type Piece = {
+  name: WasteObject
+  /** 화면 기준 퍼센트. 개체의 가운데가 이 자리에 온다. */
+  x: number
+  y: number
+  w: number
+  rot: number
+  /** 들어오기 시작하는 때(초) */
+  delay: number
+  from: 'left' | 'right'
+}
 
-const RIGHT: { name: WasteObject; top: number; w: number; delay: number }[] = [
-  { name: 'cap-blue', top: 18, w: 12, delay: 1.9 },
-  { name: 'cup-coffee', top: 34, w: 13, delay: 2.7 },
-  { name: 'handle-yellow', top: 52, w: 11, delay: 2.2 },
-  { name: 'lid-red', top: 68, w: 15, delay: 3.3 },
-  { name: 'straw-red', top: 8, w: 14, delay: 3.9 },
+const PIECES: Piece[] = [
+  { name: 'glove-purple', x: 14, y: 46, w: 17, rot: -14, delay: 1.5, from: 'left' },
+  { name: 'box-foam', x: 17, y: 24, w: 13, rot: 12, delay: 2.1, from: 'left' },
+  { name: 'cup-noodle', x: 29, y: 28, w: 9, rot: -6, delay: 2.6, from: 'left' },
+  { name: 'can-gatorade', x: 12, y: 70, w: 13, rot: 8, delay: 3.0, from: 'left' },
+  { name: 'ashtray-jar', x: 26, y: 72, w: 12, rot: -5, delay: 3.5, from: 'left' },
+  { name: 'box-adidas', x: 36, y: 82, w: 14, rot: 6, delay: 2.9, from: 'left' },
+  { name: 'straw-red', x: 46, y: 9, w: 22, rot: -4, delay: 1.9, from: 'right' },
+  { name: 'part-blue', x: 62, y: 24, w: 11, rot: 9, delay: 2.3, from: 'right' },
+  { name: 'handle-yellow', x: 84, y: 28, w: 9, rot: -10, delay: 2.8, from: 'right' },
+  { name: 'cup-coffee', x: 60, y: 48, w: 11, rot: 5, delay: 1.7, from: 'right' },
+  { name: 'cap-blue', x: 73, y: 24, w: 5, rot: 0, delay: 3.3, from: 'right' },
+  { name: 'lid-red', x: 68, y: 72, w: 15, rot: -7, delay: 2.5, from: 'right' },
+  { name: 'box-stack', x: 86, y: 60, w: 15, rot: 7, delay: 3.1, from: 'right' },
+  { name: 'cap-blue', x: 56, y: 82, w: 7, rot: 14, delay: 3.7, from: 'right' },
 ]
 
 export function Landing() {
@@ -38,25 +53,32 @@ export function Landing() {
         <Asset name="logo-tea.webp" alt="TOXIC EARTH ARCHIVE" eager />
       </h1>
 
-      {[...LEFT.map((o) => ({ ...o, from: 'left' as const })), ...RIGHT.map((o) => ({ ...o, from: 'right' as const }))]
-        .filter((o) => (WASTE_OBJECTS as readonly string[]).includes(o.name))
-        .map((o) => (
+      {PIECES.map((p, i) => (
+        /* 들어오기와 둥실거리기가 둘 다 translate 를 쓴다. 한 요소에 겹치면 뒤엣것이
+           앞엣것을 지우므로 자리는 바깥이, 흔들림은 안쪽이 맡는다. */
+        <span
+          key={p.name + i}
+          className={`landing__slot landing__slot--${p.from}`}
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: `${p.w}%`,
+            animationDelay: `${p.delay}s`,
+          }}
+        >
           <img
-            key={o.name}
-            className={`landing__obj landing__obj--${o.from}`}
-            src={objectSrc(o.name)}
+            className="landing__obj"
+            src={objectSrc(p.name)}
             alt=""
             aria-hidden="true"
             style={{
-              top: `${o.top}%`,
-              width: `${o.w}%`,
-              [o.from]: 0,
-              /* 들어오는 때와 둥실거리는 주기를 개체마다 어긋나게 둔다 */
-              animationDelay: `${o.delay}s, ${o.delay + 1.2}s`,
-              animationDuration: `1.1s, ${5 + (o.delay % 2)}s`,
+              rotate: `${p.rot}deg`,
+              animationDelay: `${p.delay + 1.1}s`,
+              animationDuration: `${4.5 + (i % 4) * 0.7}s`,
             }}
           />
-        ))}
+        </span>
+      ))}
     </main>
   )
 }
