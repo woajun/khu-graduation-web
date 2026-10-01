@@ -30,3 +30,8 @@ reference/*.mov
 .yarn/cache
 .yarn/install-state.gz
 .yarn/unplugged
+
+# 드라이브에서 받은 원본 376MB — 구운 WebP(public/waste)만 저장소에 둔다.
+# 원본이 필요하면 드라이브에서 다시 받는다. 저장소는 한 번 무거워지면 되돌리기 어렵다.
+assets-src/waste/
+drive-download-*/

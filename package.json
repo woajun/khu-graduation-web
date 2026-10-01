@@ -10,7 +10,9 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "sync:sizes": "node scripts/sync-sizes.mjs",
-    "assets:webp": "node scripts/to-webp.mjs"
+    "assets:webp": "node scripts/to-webp.mjs",
+    "assets:waste": "node scripts/waste-webp.mjs",
+    "assets:waste:import": "node scripts/waste-import.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
