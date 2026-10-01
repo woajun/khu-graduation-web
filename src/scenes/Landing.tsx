@@ -1,3 +1,4 @@
+import { Asset } from '../components/Asset'
 import { WASTE_OBJECTS, objectSrc, type WasteObject } from '../lib/waste'
 
 /**
@@ -32,12 +33,9 @@ const RIGHT: { name: WasteObject; top: number; w: number; delay: number }[] = [
 export function Landing() {
   return (
     <main className="landing" aria-label="TOXIC EARTH ARCHIVE">
+      {/* 로고는 글자가 아니라 그림이다 — O 가 점 격자로 돼 있어 서체로는 못 만든다. */}
       <h1 className="landing__logo">
-        <span>TOXIC</span>
-        <span>EARTH</span>
-        <span>
-          ARCHIVE<sup>™</sup>
-        </span>
+        <Asset name="logo-tea.webp" alt="TOXIC EARTH ARCHIVE" eager />
       </h1>
 
       {[...LEFT.map((o) => ({ ...o, from: 'left' as const })), ...RIGHT.map((o) => ({ ...o, from: 'right' as const }))]

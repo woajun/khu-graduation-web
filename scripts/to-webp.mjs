@@ -15,7 +15,7 @@ const OUT = 'public/interaction'
  * 글자·선으로만 된 에셋. 손실 압축하면 가장자리가 뭉개져서 무손실로 굽는다.
  * 나머지(사진, 누끼 오브젝트)는 손실 압축해도 티가 안 난다.
  */
-const LINE_ART = /^(title-colors|intro-paragraph|archive-header|archive-caps-|index-col-|label-|line-|nav|arrow-down)/
+const LINE_ART = /^(logo-|title-colors|intro-paragraph|archive-header|archive-caps-|index-col-|label-|line-|nav|arrow-down)/
 
 await mkdir(SRC, { recursive: true })
 

@@ -93,11 +93,14 @@ export function Header({ route, variant = 'reveal' }: Props) {
         className="nav__toggle"
         aria-expanded={active}
         aria-controls="nav-menu"
-        // 메뉴가 늘 보이는 쪽에서는 여는 버튼이 아니라 홈으로 가는 표시다
+        /* 아이콘은 늘 랜딩으로 간다. 시안에서 상단 차례가
+           '아이콘(랜딩) About / Archiving / Magazine / Gacha' 라 이 자리가 곧 홈이다.
+           랜딩에 서 있을 때만 메뉴를 고정하는 스위치로 쓴다 — 거기서는 갈 데가 없다. */
         onClick={() => {
-          if (variant === 'inline') location.hash = routePath('archiving')
-          else setPinned((v) => !v)
+          if (route === 'landing') setPinned((v) => !v)
+          else location.hash = routePath('landing')
         }}
+        title={route === 'landing' ? '메뉴' : '처음으로'}
       >
         {/* 시안은 1920 폭에서 28px 격자 — 1px 선 네 줄과 8px 칸 세 개로 딱 떨어진다.
             선을 0.5 좌표에 놓아야 1px 이 픽셀 경계에 정확히 앉아 뭉개지지 않는다. */}
