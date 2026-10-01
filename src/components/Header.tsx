@@ -8,10 +8,17 @@ import { routePath, type Route } from '../lib/useRoute'
  * 시안마다 첫 항목 이름이 다르다 — 아카이브 쪽은 'Archiving', 가챠 쪽은 'color book'.
  * 나중 시안인 가챠 것을 따랐다. magazine 은 아직 페이지가 없어 자리만 잡아둔다.
  */
+/**
+ * 시안의 상단 차례 그대로 — 아이콘(랜딩) About / Archiving / Magazine / Gacha.
+ *
+ * About 과 Magazine 은 아직 화면이 없다. `route: null` 이면 눌리지 않는다 —
+ * 가짜로 걸어 두면 눌러 보고 아무 일도 안 일어나는 쪽이 더 나쁘다.
+ */
 const LINKS: { label: string; route: Route | null }[] = [
-  { label: 'color book', route: 'archive' },
-  { label: 'magazine', route: null },
-  { label: 'gacha', route: 'gacha' },
+  { label: 'About', route: null },
+  { label: 'Archiving', route: 'archiving' },
+  { label: 'Magazine', route: null },
+  { label: 'Gacha', route: 'gacha' },
 ]
 
 /**
@@ -88,7 +95,7 @@ export function Header({ route, variant = 'reveal' }: Props) {
         aria-controls="nav-menu"
         // 메뉴가 늘 보이는 쪽에서는 여는 버튼이 아니라 홈으로 가는 표시다
         onClick={() => {
-          if (variant === 'inline') location.hash = routePath('archive')
+          if (variant === 'inline') location.hash = routePath('archiving')
           else setPinned((v) => !v)
         }}
       >
