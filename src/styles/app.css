@@ -426,3 +426,49 @@
     transition: none;
   }
 }
+
+
+/* ── 랜딩 ── */
+/* 빈 검은 화면에서 로고가 떠오르고, 양옆에서 개체가 하나씩 들어온다. */
+.landing {
+  position: fixed; inset: 0; background: #000; overflow: hidden;
+  display: grid; place-items: center;
+}
+.landing__logo {
+  margin: 0; z-index: 2; text-align: center; color: #fff;
+  /* 시안의 로고는 굵은 산세리프다. 본문 세리프를 그대로 쓰면 다른 글자가 된다 —
+     정확한 서체는 아직 모른다(#118). */
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800; letter-spacing: -.03em; line-height: 1.02;
+  font-size: clamp(2.2rem, 7vw, 5rem);
+  display: grid; gap: .02em;
+  opacity: 0; animation: landing-logo 2.4s ease-out .3s forwards;
+}
+.landing__logo sup { font-size: .28em; vertical-align: super; font-weight: 600; }
+@keyframes landing-logo { to { opacity: 1; } }
+
+/* 들어오기 + 둥실거리기 두 겹. 개체마다 시작과 주기를 어긋나게 준다(인라인 style). */
+.landing__obj {
+  position: absolute; opacity: 0; z-index: 1;
+  animation-name: landing-in, landing-float;
+  animation-timing-function: cubic-bezier(.22, .61, .36, 1), ease-in-out;
+  animation-fill-mode: forwards, none;
+  animation-iteration-count: 1, infinite;
+}
+.landing__obj--left { animation-name: landing-in-left, landing-float; }
+.landing__obj--right { animation-name: landing-in-right, landing-float; }
+@keyframes landing-in-left {
+  from { opacity: 0; transform: translateX(-60%); }
+  to { opacity: 1; transform: translateX(-18%); }
+}
+@keyframes landing-in-right {
+  from { opacity: 0; transform: translateX(60%); }
+  to { opacity: 1; transform: translateX(18%); }
+}
+@keyframes landing-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing__logo, .landing__obj { animation: none; opacity: 1; }
+}

@@ -4,6 +4,7 @@ import { useCutDeck } from './lib/useCutDeck'
 import { useRoute } from './lib/useRoute'
 import { useScrollFx } from './lib/useScrollFx'
 import { Hero } from './scenes/Hero'
+import { Landing } from './scenes/Landing'
 import { Intro } from './scenes/Intro'
 import { Archive } from './scenes/Archive'
 import { ColorIndex } from './scenes/ColorIndex'
@@ -39,8 +40,8 @@ export default function App() {
 
   return (
     <>
-      <Header route={route} variant={route === 'gacha' ? 'inline' : 'reveal'} />
-      {route === 'gacha' ? <Gacha /> : <ArchivePage />}
+      <Header route={route} variant={route === 'archiving' ? 'reveal' : 'inline'} />
+      {route === 'landing' ? <Landing /> : route === 'gacha' ? <Gacha /> : <ArchivePage />}
     </>
   )
 }
