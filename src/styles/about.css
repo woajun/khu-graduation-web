@@ -5,6 +5,7 @@
   --dotum: 'GamtanRoad Dotum', sans-serif;
   position: relative;
   width: 1920px;
+  margin-inline: auto;
   overflow-x: clip;
   background: #ffffff;
   color: #000000;
