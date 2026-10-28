@@ -56,7 +56,8 @@
   left: 0;
   z-index: 30;
   display: flex;
-  width: 100%;
+  /* 스크롤바가 생기는 화면에서도 가운데가 안 밀리게 화면 전체 폭에 맞춘다 */
+  width: 100vw;
   flex-direction: column;
   align-items: center;
   padding-top: clamp(18px, 2.03vw, 46px);
@@ -248,8 +249,9 @@
 .landing {
   position: fixed; inset: 0; background: #fff; overflow: hidden;
   display: grid; place-items: center;
-  --cup: min(90vmin, 60vw);
-  --ring: calc(var(--cup) / 2);
+  /* 피그마 랜딩_W(1929×1080)의 1px. 화면이 더 넓거나 좁으면 시안 비율 그대로 줄인다 */
+  --u: min(calc(100vh / 1080), calc(100vw / 1929));
+  --ring: calc(654 * var(--u));
   --pushx: 1vw;
   --pushy: 1vh;
   --gu: 1vw;
@@ -257,23 +259,25 @@
   --r: 0vmin;
 }
 .landing__logo {
-  margin: 0; z-index: 3; width: min(18rem, 24vw);
+  margin: 0; z-index: 3; width: calc(537 * var(--u));
+  translate: calc(20 * var(--u)) calc(-10 * var(--u));
   animation: landing-logo 2.4s ease-out .3s backwards;
 }
 .landing__logo img { width: 100%; height: auto; display: block; }
 @keyframes landing-logo { from { opacity: 0; } }
 
 .cupring {
-  position: absolute; top: 50%; width: var(--cup); aspect-ratio: 1; translate: 0 -50%;
+  position: absolute; top: 50%; width: calc(var(--ring) * 2); aspect-ratio: 1; translate: 0 -50%;
 }
-.cupring--left  { left: calc(0vw - var(--cup) / 2); }
-.cupring--right { left: calc(100vw - var(--cup) / 2); }
+.cupring--left  { left: calc(-665 * var(--u)); }
+.cupring--right { left: calc(100vw - 652 * var(--u)); }
 .cupring__cup {
-  position: absolute; inset: 0; width: 100%; height: auto;
+  position: absolute; top: calc(62 * var(--u)); left: calc(-9 * var(--u));
+  width: calc(1230 * var(--u)); max-width: none; height: auto;
   opacity: 0; translate: -46% 0;
   transition: opacity 1.1s ease, translate 1.3s cubic-bezier(.22, .61, .36, 1);
 }
-.cupring--right .cupring__cup { translate: 46% 0; rotate: 180deg; }
+.cupring--right .cupring__cup { left: calc(95 * var(--u)); translate: 46% 0; rotate: 180deg; }
 .landing--ring .cupring__cup { opacity: 1; translate: 0 0; }
 
 .cupring__orbit { position: absolute; inset: 0; }
@@ -302,7 +306,7 @@
 .landing--gather .cupring__item:not(.is-late) { opacity: 1; }
 .landing--ring { --pushx: 0vw; --pushy: 0vh; --gu: 0vw; --gv: 0vh; --r: var(--ring); }
 .landing--ring .cupring__item {
-  width: calc(var(--w) * 1vmin);
+  width: calc(var(--w) * var(--u));
   opacity: 1;
   transition:
     transform 1.4s cubic-bezier(.22, .61, .36, 1),
@@ -310,7 +314,7 @@
     opacity .7s ease;
 }
 
-.cupring__item.is-late { width: calc(var(--w) * 1vmin); }
+.cupring__item.is-late { width: calc(var(--w) * var(--u)); }
 .landing--ring .cupring__item.is-late {
   transition:
     transform 1.4s cubic-bezier(.22, .61, .36, 1),

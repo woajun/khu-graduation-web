@@ -70,9 +70,9 @@ export function Landing({ covered = false }: { covered?: boolean }) {
     turn.current = { side: p.side, hold, to: from + delta }
 
     const spot = cardSpot(p.side === 'left')
-    const ringPx = Math.min(window.innerHeight, window.innerWidth) * 0.9
-    const cupPx = Math.min(ringPx, window.innerWidth * 0.6) / 2
-    const atX = p.side === 'left' ? cupPx : window.innerWidth - cupPx
+    const u = Math.min(window.innerHeight / 1080, window.innerWidth / 1929)
+    const ringPx = 654 * u
+    const atX = p.side === 'left' ? -11 * u + ringPx : window.innerWidth + 2 * u - ringPx
     const dx = spot.x - atX
     const dy = spot.y - window.innerHeight / 2
 

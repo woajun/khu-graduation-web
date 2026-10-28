@@ -47,7 +47,29 @@ const GATHER: Partial<Record<WasteObject, Spot>> = {
 const CUP_X: Record<Side, number> = { left: 0, right: 100 }
 
 const SPAN = 1.6
-const UNIT = 9
+// 원에 섰을 때의 폭(피그마 랜딩_W 1px). 시안과 같은 이미지라 시안 폭을 그대로 쓴다
+const RING_W: Partial<Record<WasteObject, number>> = {
+  'cup-noodle': 135.52,
+  'can-tuna': 207.03,
+  'cup-yogurt': 266.49,
+  'glove-black': 198.24,
+  'can-coke': 130.04,
+  'cap-blue': 150.04,
+  'glove-purple': 294.04,
+  'box-adidas': 219.29,
+  'lid-red': 197.33,
+  'box-stack': 210.97,
+  'can-gatorade': 193.58,
+  'cup-coffee': 137.33,
+  'handle-yellow': 201.68,
+  'part-blue': 150.79,
+  'straw-red': 214.28,
+  // 시안 칸에는 다른 이미지(트레이·잘린 이미지)가 있어서 그 칸 넓이에 맞췄다
+  'box-foam': 168,
+  'ashtray-jar': 185,
+}
+// 시안에 없는 개체의 넓이 기준
+const UNIT = 178
 
 export type Piece = {
   name: WasteObject
@@ -67,6 +89,8 @@ export type Piece = {
 const round = (n: number) => Math.round(n * 100) / 100
 
 function widthOf(name: WasteObject) {
+  const fixed = RING_W[name]
+  if (fixed) return fixed
   const size = WASTE_SIZES[`object/${name}`]
   const ratio = size ? Math.min(1.18, Math.max(0.85, size[0] / size[1])) : 1
   return UNIT * Math.sqrt(ratio)
