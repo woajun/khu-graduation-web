@@ -26,6 +26,7 @@ WANT = {
     "GamtanRoad Dotum-OTF/감탄로드돋움체 Bold.otf": ("gamtan-dotum-700.woff2", "GamtanRoadDotum-Bold"),
     "GamtanRoad Batang-OTF/감탄로드바탕체 Regular.otf": ("gamtan-batang-400.woff2", "GamtanRoadBatang-Regular"),
     "GamtanRoad Tantan-OTF/감탄로드탄탄체.otf": ("gamtan-tantan-400.woff2", "GamtanRoadTantan-Regular"),
+    "GamtanRoad Gamtan-OTF/감탄로드감탄체.otf": ("gamtan-gamtan-400.woff2", "GamtanRoadGamtan-Regular"),
     "Montserrat/Montserrat-VariableFont_wght.ttf": ("montserrat-var.woff2", "Montserrat"),
     "nt_epika/NT Epika Regular (PERSONAL USE).otf": ("epika-400.woff2", "NTEpika-Regular"),
     "nt_epika/NT Epika Bold (PERSONAL USE).otf": ("epika-700.woff2", "NTEpika-Bold"),
