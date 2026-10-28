@@ -1,6 +1,7 @@
 // import { Cursor } from './components/Cursor'
 import { Header } from './components/Header'
 import { useRoute } from './lib/useRoute'
+import { About } from './scenes/About'
 import { Landing } from './scenes/Landing'
 import { Gacha } from './scenes/Gacha'
 import { Archiving } from './scenes/Archiving'
@@ -17,6 +18,7 @@ export default function App() {
       {onLanding && <Landing covered={route === 'object'} />}
       {route === 'object' && arg && <ObjectPage name={arg} />}
       {route === 'gacha' && <Gacha />}
+      {route === 'about' && <About />}
       {route === 'archiving' && <Archiving />}
       {/* <Cursor /> */}
     </>

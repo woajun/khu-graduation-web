@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { routePath, type Route } from '../lib/useRoute'
 
 const LINKS: { label: string; route: Route | null }[] = [
-  { label: 'About', route: null },
+  { label: 'About', route: 'about' },
   { label: 'Archiving', route: 'archiving' },
   { label: 'Magazine', route: null },
   { label: 'Gacha', route: 'gacha' },
