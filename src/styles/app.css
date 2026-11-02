@@ -384,6 +384,34 @@ body:has(.gacha-result) .nav {
   gap: calc(11 * var(--u));
   margin: 0;
 }
+/* 피그마 140:8500. 이름 없이 OK 를 누르면 입력창 아래에 뜨는 안내 */
+.gacha-result__notice {
+  position: absolute;
+  left: calc(70 * var(--u));
+  top: calc(924 * var(--u));
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: calc(50 * var(--u));
+  margin: 0;
+  padding: 0 calc(31 * var(--u));
+  border: 1px solid #030303;
+  background: rgb(0 0 0 / 0.8);
+  color: #ffffff;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  font-size: calc(20 * var(--u));
+  letter-spacing: 0.04em;
+  animation: gacha-notice 2.2s ease both;
+}
+@keyframes gacha-notice {
+  0% { opacity: 0; translate: 0 calc(8 * var(--u)); }
+  10%, 85% { opacity: 1; translate: 0 0; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gacha-result__notice { animation: none; }
+}
+
 .gacha-result__input {
   box-sizing: border-box;
   width: calc(594 * var(--u));

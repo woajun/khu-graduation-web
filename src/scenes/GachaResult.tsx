@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import gsap from 'gsap'
 import { photoSrc, thumbSrc } from '../lib/waste'
 
@@ -68,6 +68,8 @@ export function pickColor(img: HTMLImageElement): string {
 type Props = { picked: Picked; onBack: () => void }
 
 const DEFAULT_NAME = 'YOUR COLOR'
+// 이름 없이 OK 를 누르면 뜨는 안내가 머무는 시간(ms)
+const EMPTY_NOTICE_MS = 2200
 const HANGUL = /[\u3131-\u318e\uac00-\ud7a3]/
 
 /**
@@ -86,6 +88,18 @@ export function GachaResult({ picked, onBack }: Props) {
   const tlRef = useRef<gsap.core.Timeline | null>(null)
   const [name, setName] = useState('')
   const big = bigName(name)
+  // 이름 없이 OK(또는 Enter)를 누르면 입력창 아래에 안내를 띄운다. 누를 때마다 숫자를 올려 다시 띄운다
+  const [notice, setNotice] = useState(0)
+  useEffect(() => {
+    if (!notice) return
+    const id = setTimeout(() => setNotice(0), EMPTY_NOTICE_MS)
+    return () => clearTimeout(id)
+  }, [notice])
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    if (!name.trim()) setNotice((n) => n + 1)
+  }
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -129,19 +143,27 @@ export function GachaResult({ picked, onBack }: Props) {
         <p className="gacha-result__desc" data-rise>
           이미지와 컬러를 보고 어울리는 이름을 지어주세요
         </p>
-        <form className="gacha-result__form" onSubmit={(e) => e.preventDefault()} data-rise>
+        <form className="gacha-result__form" onSubmit={submit} data-rise>
           <input
             className="gacha-result__input"
             type="text"
             placeholder="예시) 폐수그린/폐지브라운 ..."
             aria-label="색 이름"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value)
+              setNotice(0)
+            }}
           />
           <button type="submit" className="gacha-result__ok">
             OK
           </button>
         </form>
+        {notice > 0 && (
+          <p key={notice} className="gacha-result__notice" role="alert">
+            이름을 지어주세요.
+          </p>
+        )}
       </div>
 
       {/* 큰 사진을 받는 동안 이미 받아 둔 썸네일이 먼저 보인다 */}
