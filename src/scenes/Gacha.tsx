@@ -211,24 +211,47 @@ function useDrift(ref: RefObject<HTMLButtonElement | null>, cellPx: number) {
   }, [ref, cellPx])
 }
 
+// start 를 누른 뒤 사진·컬러칩이 사라지는 리듬. 한 번에 1~2개씩, 묶음 사이 간격만큼 기다린다
+const VANISH_GAP = 0.09
+const VANISH_DURATION = 0.18
+
+/** 칸들을 무작위 순서로 섞어 1~2개씩 묶은 뒤 빠르게 차례로 지우고, last 는 맨 마지막에 지운다 */
+function vanish(els: HTMLElement[], last?: HTMLElement | null) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const order = gsap.utils.shuffle(els)
+  if (last) order.push(last)
+  const tl = gsap.timeline()
+  for (let i = 0, at = 0; i < order.length; at += VANISH_GAP) {
+    const count = Math.random() < 0.5 ? 1 : 2
+    tl.to(
+      order.slice(i, i + count),
+      { autoAlpha: 0, scale: reduce ? 1 : 0.85, duration: reduce ? 0 : VANISH_DURATION, ease: 'power2.in' },
+      reduce ? 0 : at,
+    )
+    i += count
+  }
+  return tl
+}
+
 export function Gacha() {
   const { cell: cellPx, cols, rows } = useBoard()
-  const [drawn, setDrawn] = useState<readonly PlacedCell[] | null>(null)
-  const [drawing, setDrawing] = useState(false)
+  // start 를 누르면 화면이 어두워지고 사진·컬러칩이 하나둘씩 사라진다
+  const [started, setStarted] = useState(false)
   const startRef = useRef<HTMLButtonElement>(null)
+  const boardRef = useRef<HTMLDivElement>(null)
   useDrift(startRef, cellPx)
 
   // 화면이 시안 배치(11×6)를 다 담으면 원래 자리를 살리고 크기만 랜덤으로 바꾼다
   const fitsDesign = cols >= 11 && rows >= 6
-  const initial = useMemo(() => place(GACHA_CELLS, cols, rows, fitsDesign), [cols, rows, fitsDesign])
-  const cells = drawn ?? initial
+  const cells = useMemo(() => place(GACHA_CELLS, cols, rows, fitsDesign), [cols, rows, fitsDesign])
 
-  const draw = useCallback(() => {
-    if (drawing) return
-    setDrawing(true)
-    setDrawn(place(GACHA_CELLS, cols, rows, false))
-    setTimeout(() => setDrawing(false), 600)
-  }, [cols, rows, drawing])
+  const start = useCallback(() => {
+    if (started) return
+    setStarted(true)
+    const board = boardRef.current
+    // start 버튼도 사진·컬러칩을 다 지운 뒤 같은 방식으로 사라진다
+    if (board) vanish([...board.querySelectorAll<HTMLElement>('.gacha__cell')], startRef.current)
+  }, [started])
 
   const boardStyle = useMemo(
     () => ({ backgroundSize: `${cellPx}px ${cellPx}px` }) as const,
@@ -237,19 +260,18 @@ export function Gacha() {
 
   return (
     <main
-      className="gacha"
+      className={`gacha${started ? ' is-started' : ''}`}
       aria-label="가챠"
       // start 버튼이 칸과 같은 비율로 줄어들도록 1920 기준 배율을 넘긴다
       style={{ '--gacha-scale': cellPx / CELL } as CSSProperties}
     >
-      <div className="gacha__board" style={boardStyle} aria-hidden="true">
+      <div ref={boardRef} className="gacha__board" style={boardStyle} aria-hidden="true">
         {cells.map((cell, i) => (
           <div
             key={`${cell.kind}-${i}`}
-            className={`gacha__cell${drawing ? ' is-drawing' : ''}`}
+            className="gacha__cell"
             style={{
               ...cellBox(cell, cellPx),
-              transitionDelay: `${(i % 7) * 40}ms`,
               ...(cell.kind === 'color' ? { background: cell.color } : null),
             }}
           >
@@ -260,7 +282,7 @@ export function Gacha() {
         ))}
       </div>
 
-      <button ref={startRef} type="button" className="gacha__start" onClick={draw} disabled={drawing}>
+      <button ref={startRef} type="button" className="gacha__start" onClick={start} disabled={started}>
         {/* 피그마 start 버튼: 평소엔 직사각형, hover 하면 모서리가 잘린 입체 박스로 바뀐다 */}
         <svg className="gacha__start-box" viewBox="0 0 272 175" aria-hidden="true">
           <path className="gacha__start-shape" />

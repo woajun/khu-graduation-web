@@ -181,20 +181,41 @@
   }
 }
 
+/* 격자선 색을 transition 하려고 색 타입으로 등록한다 */
+@property --gacha-line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cccccc;
+}
+
 .gacha {
+  --gacha-line: #cccccc;
   position: relative;
   width: 100%;
   height: 100svh;
   overflow: hidden;
   background: var(--bg);
+  transition:
+    background-color 0.5s ease,
+    --gacha-line 0.5s ease;
+}
+
+/* start 를 누르면 화면이 어두워지고 글자는 흰색이 된다 */
+.gacha.is-started {
+  --ink: #ffffff;
+  --gacha-line: #3d3a38;
+  background: #252322;
+}
+body:has(.gacha.is-started) .nav {
+  --ink: #ffffff;
 }
 
 .gacha__board {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(to right, #cccccc 1px, transparent 1px),
-    linear-gradient(to bottom, #cccccc 1px, transparent 1px);
+    linear-gradient(to right, var(--gacha-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--gacha-line) 1px, transparent 1px);
 }
 
 .gacha__cell {
@@ -228,6 +249,10 @@
   background: none;
   color: #030303;
   cursor: pointer;
+  transition: color 0.5s ease;
+}
+.gacha.is-started .gacha__start {
+  color: #ffffff;
 }
 
 /* 기본 직사각형이 버튼 칸에 딱 맞고, hover 모양은 위·오른쪽으로 삐져나온다 */
@@ -248,7 +273,12 @@
   stroke: currentColor;
   stroke-width: 1px;
   vector-effect: non-scaling-stroke;
-  transition: d 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    d 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    fill 0.5s ease;
+}
+.gacha.is-started .gacha__start-shape {
+  fill: #252322;
 }
 
 .gacha__start-label {
@@ -298,6 +328,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .gacha,
+  .gacha__start,
   .gacha__cell,
   .gacha__start-shape,
   .gacha__start-label,
