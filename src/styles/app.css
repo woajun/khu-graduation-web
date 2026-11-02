@@ -29,6 +29,11 @@
   font-weight: 100 900; font-display: swap;
 }
 @font-face {
+  font-family: 'KOTRA Bold';
+  src: url('/fonts/kotra-bold-700.woff') format('woff');
+  font-weight: 700; font-display: swap;
+}
+@font-face {
   font-family: 'NT Epika';
   src: url('/fonts/epika-400.woff2') format('woff2');
   font-weight: 400; font-display: swap;
@@ -231,6 +236,183 @@ body:has(.gacha.is-started) .nav {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* start 뒤 채워지는 아카이빙 사진. 격자 칸에 딱 맞는 정사각형으로 자른다 */
+.gacha__archive {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.gacha__archive-tile {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  visibility: hidden;
+  pointer-events: auto;
+}
+.gacha__archive-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.2s ease;
+}
+.gacha__archive-tile:hover img,
+.gacha__archive-tile:focus-visible img {
+  filter: brightness(1.15);
+}
+.gacha__archive-tile:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
+}
+
+/* 피그마 140:8400 결과 화면. 1920 기준 px 에 칸과 같은 배율을 곱한다 */
+.gacha-result {
+  --u: calc(1px * var(--gacha-scale, 1));
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+/* 결과 화면엔 헤더가 없다 */
+body:has(.gacha-result) .nav {
+  opacity: 0;
+  pointer-events: none;
+}
+.gacha-result__photo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background: center / cover no-repeat;
+}
+.gacha-result__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gacha-result__your {
+  position: absolute;
+  left: calc(42 * var(--u));
+  top: calc(38 * var(--u));
+  width: calc(821 * var(--u));
+  margin: 0;
+  color: rgb(255 255 255 / 0.7);
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(187.94 * var(--u));
+  font-weight: 900;
+  line-height: calc(170 * var(--u));
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  white-space: pre-line;
+  word-break: keep-all;
+  pointer-events: none;
+}
+/* 한글이 섞이면 코트라 볼드에 행간 210 */
+.gacha-result__your.is-ko {
+  font-family: 'KOTRA Bold', 'Montserrat', sans-serif;
+  font-weight: 700;
+  line-height: calc(210 * var(--u));
+}
+.gacha-result__panel {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  clip-path: inset(0);
+  color: #ffffff;
+}
+.gacha-result__back {
+  position: absolute;
+  left: calc(70 * var(--u));
+  top: calc(58 * var(--u));
+  display: grid;
+  place-items: center;
+  width: calc(52 * var(--u));
+  height: calc(52 * var(--u));
+  padding: 0;
+  border: 1px solid #030303;
+  background: #ffffff;
+  color: #030303;
+  cursor: pointer;
+}
+/* 피그마 화살표: 31px 폭, 선 굵기 3.7px */
+.gacha-result__back svg {
+  width: calc(31 * var(--u));
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gacha-result__title {
+  position: absolute;
+  left: calc(70 * var(--u));
+  top: calc(676 * var(--u));
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(70.98 * var(--u));
+  font-weight: 800;
+  line-height: calc(44.36 * var(--u));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.gacha-result__desc {
+  position: absolute;
+  left: calc(70 * var(--u));
+  top: calc(750.41 * var(--u));
+  margin: 0;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  font-size: calc(29.27 * var(--u));
+  font-weight: 700;
+  line-height: calc(36.59 * var(--u));
+  letter-spacing: 0.04em;
+}
+.gacha-result__form {
+  position: absolute;
+  left: calc(70 * var(--u));
+  top: calc(844.41 * var(--u));
+  display: flex;
+  gap: calc(11 * var(--u));
+  margin: 0;
+}
+.gacha-result__input {
+  box-sizing: border-box;
+  width: calc(594 * var(--u));
+  height: calc(72 * var(--u));
+  padding: 0 calc(27 * var(--u));
+  border: 1px solid #030303;
+  border-radius: 0;
+  background: rgb(255 255 255 / 0.8);
+  color: #030303;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  font-size: calc(24 * var(--u));
+  letter-spacing: 0.04em;
+  outline: none;
+}
+.gacha-result__input::placeholder {
+  color: #828485;
+}
+.gacha-result__ok {
+  width: calc(118 * var(--u));
+  height: calc(72 * var(--u));
+  padding: 0;
+  border: 1px solid #000000;
+  background: #030303;
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(30 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
 }
 
 /* 피그마 1920 기준 1136.64, 787.32 / 245.76×158 을 칸과 같은 배율로 줄인다 */

@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import gsap from 'gsap'
 import { asset } from '../lib/assets'
 import { CELL, cellSize, GACHA_CELLS, type GachaCell } from '../lib/gachaCells'
+import { thumbSrc, WASTE_PHOTOS } from '../lib/waste'
+import { GachaResult, pickColor, type Picked } from './GachaResult'
 
 function useBoard() {
   const [board, setBoard] = useState(() => ({ cell: 180, cols: 11, rows: 6 }))
@@ -233,12 +235,38 @@ function vanish(els: HTMLElement[], last?: HTMLElement | null) {
   return tl
 }
 
+// 다 사라진 뒤 아카이빙 사진이 채워지는 리듬
+// 대각선 한 줄(행+열이 같은 칸들)마다 늦어지는 시간과 사진 하나가 나타나는 시간
+const ARCHIVE_STEP = 0.045
+const ARCHIVE_DURATION = 0.28
+
+type ArchiveTile = { name: string; row: number; col: number }
+
+/** 격자의 모든 칸을 아카이빙 사진으로 빈칸 없이 채운다. 사진은 섞어서 겹치지 않게 고른다 */
+function layoutArchive(cols: number, rows: number): ArchiveTile[] {
+  const names = gsap.utils.shuffle(WASTE_PHOTOS.map((p) => p.name))
+  const tiles: ArchiveTile[] = []
+  for (let row = 0; row < rows; row++)
+    for (let col = 0; col < cols; col++)
+      tiles.push({ name: names[tiles.length % names.length], row, col })
+  return tiles
+}
+
 export function Gacha() {
   const { cell: cellPx, cols, rows } = useBoard()
   // start 를 누르면 화면이 어두워지고 사진·컬러칩이 하나둘씩 사라진다
   const [started, setStarted] = useState(false)
   const startRef = useRef<HTMLButtonElement>(null)
   const boardRef = useRef<HTMLDivElement>(null)
+  const archiveRef = useRef<HTMLDivElement>(null)
+  // 다 사라진 뒤 채울 아카이빙 사진 배치 (그 전엔 null)
+  const [archive, setArchive] = useState<ArchiveTile[] | null>(null)
+  // 아카이빙 사진 하나를 누르면 그 사진과 색으로 결과 화면을 연다
+  const [picked, setPicked] = useState<Picked | null>(null)
+  const pick = useCallback((name: string, img: HTMLImageElement) => {
+    const { left, top, width, height } = img.getBoundingClientRect()
+    setPicked({ name, color: pickColor(img), from: { left, top, width, height } })
+  }, [])
   useDrift(startRef, cellPx)
 
   // 화면이 시안 배치(11×6)를 다 담으면 원래 자리를 살리고 크기만 랜덤으로 바꾼다
@@ -248,10 +276,34 @@ export function Gacha() {
   const start = useCallback(() => {
     if (started) return
     setStarted(true)
+    const tiles = layoutArchive(cols, rows)
+    // 사라지는 동안 사진을 미리 받아 둬서 나타날 때 빈 칸이 보이지 않게 한다
+    tiles.forEach((t) => (new Image().src = thumbSrc(t.name)))
     const board = boardRef.current
     // start 버튼도 사진·컬러칩을 다 지운 뒤 같은 방식으로 사라진다
-    if (board) vanish([...board.querySelectorAll<HTMLElement>('.gacha__cell')], startRef.current)
-  }, [started])
+    const els = board ? [...board.querySelectorAll<HTMLElement>('.gacha__cell')] : []
+    vanish(els, startRef.current).eventCallback('onComplete', () => setArchive(tiles))
+  }, [started, cols, rows])
+
+  // 아카이빙 사진이 왼쪽 위에서 오른쪽 아래로 대각선을 따라 빠르게 나타난다
+  useLayoutEffect(() => {
+    const root = archiveRef.current
+    if (!archive || !root) return
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const tiles = [...root.querySelectorAll<HTMLElement>('.gacha__archive-tile')]
+    const tween = gsap.fromTo(
+      tiles,
+      { autoAlpha: 0, scale: reduce ? 1 : 0.6 },
+      {
+        autoAlpha: 1,
+        scale: 1,
+        duration: reduce ? 0 : ARCHIVE_DURATION,
+        ease: 'power3.out',
+        delay: (i) => (reduce ? 0 : (archive[i].row + archive[i].col) * ARCHIVE_STEP),
+      },
+    )
+    return () => void tween.kill()
+  }, [archive])
 
   const boardStyle = useMemo(
     () => ({ backgroundSize: `${cellPx}px ${cellPx}px` }) as const,
@@ -281,6 +333,30 @@ export function Gacha() {
           </div>
         ))}
       </div>
+
+      {archive && (
+        <div ref={archiveRef} className="gacha__archive">
+          {archive.map((t) => (
+            <button
+              key={`${t.row}:${t.col}`}
+              type="button"
+              className="gacha__archive-tile"
+              aria-label={`${t.name} 사진 고르기`}
+              onClick={(e) => pick(t.name, e.currentTarget.querySelector('img')!)}
+              style={{
+                left: t.col * cellPx,
+                top: t.row * cellPx,
+                width: cellPx,
+                height: cellPx,
+              }}
+            >
+              <img src={thumbSrc(t.name)} alt="" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {picked && <GachaResult picked={picked} onBack={() => setPicked(null)} />}
 
       <button ref={startRef} type="button" className="gacha__start" onClick={start} disabled={started}>
         {/* 피그마 start 버튼: 평소엔 직사각형, hover 하면 모서리가 잘린 입체 박스로 바뀐다 */}
