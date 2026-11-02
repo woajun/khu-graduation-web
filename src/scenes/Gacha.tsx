@@ -87,7 +87,14 @@ export function Gacha() {
       </div>
 
       <button type="button" className="gacha__start" onClick={draw} disabled={drawing}>
-        start
+        {/* 피그마 start 버튼: 평소엔 직사각형, hover 하면 모서리가 잘린 입체 박스로 바뀐다 */}
+        <svg className="gacha__start-box" viewBox="0 0 272 175" aria-hidden="true">
+          <path className="gacha__start-shape" />
+        </svg>
+        <span className="gacha__start-label">start</span>
+        <svg className="gacha__start-arrow" viewBox="0 0 57 24" aria-hidden="true">
+          <path d="M0 11.692L0 13.2798L55.4101 13.2798V11.692V10.1042L0 10.1042L0 11.692ZM56.5328 12.8147C57.1529 12.1947 57.1529 11.1893 56.5328 10.5693L46.4283 0.464693C45.8082 -0.155375 44.8029 -0.155375 44.1828 0.464693C43.5627 1.08476 43.5627 2.09009 44.1828 2.71015L53.1646 11.692L44.1828 20.6739C43.5627 21.2939 43.5627 22.2993 44.1828 22.9193C44.8029 23.5394 45.8082 23.5394 46.4283 22.9193L56.5328 12.8147Z" />
+        </svg>
       </button>
     </main>
   )
