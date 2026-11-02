@@ -201,7 +201,9 @@
   position: absolute;
   transition:
     left 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    top 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    top 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .gacha__photo {
@@ -214,9 +216,11 @@
 .gacha__start {
   /* 피그마 start 컴포넌트의 1px. 기본 박스 250px 을 기존 버튼 폭 245.76px 에 맞춘다 */
   --k: calc(0.98276px * var(--gacha-scale, 1));
+  /* 위치는 useDrift 가 transform 으로 정한다 (화면 안 아무 곳에 나타나 떠다닌다) */
   position: absolute;
-  left: calc(1136.64px * var(--gacha-scale, 1));
-  top: calc(787.32px * var(--gacha-scale, 1));
+  left: 0;
+  top: 0;
+  opacity: 0;
   width: calc(250 * var(--k));
   height: calc(165 * var(--k));
   padding: 0;
@@ -239,7 +243,8 @@
 /* 두 모양의 점 개수를 맞춰 d 를 transition 한다 (점이 겹친 곳이 hover 때 잘린 모서리로 벌어진다) */
 .gacha__start-shape {
   d: path('M0.5 9.5 L0.5 9.5 L0.5 174.5 L250.5 174.5 L250.5 174.5 L250.5 9.5 Z');
-  fill: var(--bg);
+  /* 피그마처럼 반투명 흰 면이라 뒤에 지나가는 사진·컬러칩이 비친다 */
+  fill: rgb(255 255 255 / 0.5);
   stroke: currentColor;
   stroke-width: 1px;
   vector-effect: non-scaling-stroke;
