@@ -289,6 +289,10 @@ const HOVER_TEXT = 0.25
 // 줄어들 때는 글자를 먼저 빠르게 지우고, 박스는 칩 자리로 부드럽게 접혀 칩과 그대로 겹친다
 const HOVER_TEXT_OUT = 0.12
 const HOVER_SHRINK = 0.4
+// 텍스트만 있는 칸은 크기가 그대로라, 마우스가 들어온 자리에서 색이 번지듯 원으로 채우고 글자색을 함께 바꾼다
+const FILL_IN = 0.6
+const FILL_OUT = 0.45
+const TEXT_INK = '#000000'
 
 /** 배경색이 밝으면 검은 글자, 어두우면 흰 글자 (상대 휘도 기준) */
 function inkOn(hex: string) {
@@ -375,6 +379,12 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
   const [hover, setHover] = useState<number | null>(null)
   const hoverRef = useRef<HTMLDivElement>(null)
   const leaving = useRef<gsap.core.Timeline | null>(null)
+  // 색이 번지기 시작할 자리 (보드 기준 px)
+  const pointer = useRef({ x: 0, y: 0 })
+  const fillAt = (x: number, y: number, size: number) => {
+    const { left, top } = boardRef.current!.getBoundingClientRect()
+    return `circle(${size}% at ${x - left - grown!.left}px ${y - top - grown!.top}px)`
+  }
 
   // 화면이 시안 배치(11×6)를 다 담으면 원래 자리를 살리고 크기만 랜덤으로 바꾼다
   const fitsDesign = cols >= 11 && rows >= 6
@@ -444,6 +454,23 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
     if (!el || !hovered || !grown) return
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const ctx = gsap.context(() => {
+      if (hovered.size === 'text') {
+        const { x, y } = pointer.current
+        gsap
+          .timeline()
+          .fromTo(
+            '.gacha__hover-fill',
+            { clipPath: fillAt(x, y, 0) },
+            { clipPath: fillAt(x, y, 150), duration: reduce ? 0 : FILL_IN, ease: 'power2.inOut' },
+          )
+          .fromTo(
+            el,
+            { color: TEXT_INK },
+            { color: inkOn(hovered.color), duration: reduce ? 0 : FILL_IN * 0.7, ease: 'power1.inOut' },
+            reduce ? 0 : FILL_IN * 0.15,
+          )
+        return
+      }
       gsap
         .timeline()
         .fromTo(
@@ -457,8 +484,9 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
     // 칩이 바뀔 때만 다시 키운다
   }, [hover, cellPx])
 
-  const enter = (i: number) => {
+  const enter = (i: number, x: number, y: number) => {
     if (started) return
+    pointer.current = { x, y }
     const tl = leaving.current
     leaving.current = null
     // 접히는 도중에 같은 칩으로 돌아오면 그 자리에서 다시 펼친다
@@ -467,21 +495,28 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
     setHover(i)
   }
   // 칩과 커진 박스 사이를 오갈 땐 그대로 두고, 둘 다 벗어나면 칩 크기로 줄이며 닫는다
-  const leave = (to: EventTarget | null) => {
+  const leave = (to: EventTarget | null, x: number, y: number) => {
     const el = hoverRef.current
     const cell = boardRef.current?.querySelector(`[data-cell="${hover}"]`)
     if (to instanceof Node && (el?.contains(to) || cell?.contains(to))) return
     if (!el || !hovered || matchMedia('(prefers-reduced-motion: reduce)').matches) return setHover(null)
     leaving.current?.kill()
     const tl = gsap.timeline({ onComplete: () => setHover(null) })
+    // 텍스트만 있는 칸: 마우스가 나간 자리로 색을 거둬들이며 글자색도 원래대로 돌린다
+    if (hovered.size === 'text') {
+      tl.to(el.querySelector('.gacha__hover-fill'), {
+        clipPath: fillAt(x, y, 0),
+        duration: FILL_OUT,
+        ease: 'power2.inOut',
+      }).to(el, { color: TEXT_INK, duration: FILL_OUT * 0.7, ease: 'power1.inOut' }, 0)
+      leaving.current = tl
+      return
+    }
     tl.to(el.querySelectorAll('p'), { autoAlpha: 0, duration: HOVER_TEXT_OUT, ease: 'power1.out' }).to(
       el,
       { ...cellBox(hovered, cellPx), duration: HOVER_SHRINK, ease: 'power3.inOut' },
       '<',
     )
-    // 텍스트만 있는 칸은 박스가 없으니 접히는 끝에서 배경색만 걷어 낸다
-    if (hovered.size === 'text')
-      tl.to(el, { backgroundColor: 'transparent', duration: HOVER_SHRINK * 0.6, ease: 'power1.in' }, '>-0.2')
     leaving.current = tl
   }
 
@@ -510,8 +545,8 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
             key={`${cell.kind}-${i}`}
             className={`gacha__cell${cell.size === 'text' ? ' is-text' : ''}`}
             data-cell={i}
-            onMouseEnter={cell.kind === 'color' ? () => enter(i) : undefined}
-            onMouseLeave={cell.kind === 'color' ? (e) => leave(e.relatedTarget) : undefined}
+            onMouseEnter={cell.kind === 'color' ? (e) => enter(i, e.clientX, e.clientY) : undefined}
+            onMouseLeave={cell.kind === 'color' ? (e) => leave(e.relatedTarget, e.clientX, e.clientY) : undefined}
             style={{
               ...cellBox(cell, cellPx),
               ...(cell.kind === 'color' && cell.size !== 'text' ? { background: cell.color } : null),
@@ -528,11 +563,18 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
             key={hover}
             ref={hoverRef}
             className="gacha__hover"
-            style={{ ...grown, background: hovered.color, color: inkOn(hovered.color) }}
+            style={
+              hovered.size === 'text'
+                ? { ...grown, color: TEXT_INK }
+                : { ...grown, background: hovered.color, color: inkOn(hovered.color) }
+            }
             // 접히는 박스 위로 마우스가 돌아와도 다시 펼친다
-            onMouseEnter={() => enter(hover!)}
-            onMouseLeave={(e) => leave(e.relatedTarget)}
+            onMouseEnter={(e) => enter(hover!, e.clientX, e.clientY)}
+            onMouseLeave={(e) => leave(e.relatedTarget, e.clientX, e.clientY)}
           >
+            {hovered.size === 'text' && (
+              <div className="gacha__hover-fill" style={{ background: hovered.color }} />
+            )}
             <ChipText name={hovered.name} author={hovered.author} />
           </div>
         )}

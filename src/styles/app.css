@@ -246,6 +246,12 @@ body:has(.gacha.is-started) .nav {
   position: absolute;
   z-index: 2;
 }
+/* 텍스트만 있는 칸에 번지는 색. 글자는 이 위에 올라간다 */
+.gacha__hover-fill {
+  position: absolute;
+  inset: 0;
+  clip-path: circle(0% at 50% 50%);
+}
 .gacha__chip-name {
   position: absolute;
   left: calc(16 * var(--t));
