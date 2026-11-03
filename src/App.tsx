@@ -3,7 +3,7 @@ import { Header } from './components/Header'
 import { useRoute } from './lib/useRoute'
 import { About } from './scenes/About'
 import { Landing } from './scenes/Landing'
-import { Gacha } from './scenes/Gacha'
+import { Gacha, GACHA_CURSOR_TIP } from './scenes/Gacha'
 import { Archiving } from './scenes/Archiving'
 import { ObjectPage } from './scenes/ObjectPage'
 import './styles/app.css'
@@ -20,8 +20,9 @@ export default function App() {
       {route === 'gacha' && <Gacha />}
       {route === 'about' && <About />}
       {route === 'archiving' && <Archiving />}
-      {/* 커스텀 커서는 archiving 화면에서만 쓴다 */}
+      {/* 커스텀 커서는 archiving 과 gacha 화면에서 쓴다 */}
       {route === 'archiving' && <Cursor />}
+      {route === 'gacha' && <Cursor tip={GACHA_CURSOR_TIP} />}
     </>
   )
 }

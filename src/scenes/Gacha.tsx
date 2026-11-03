@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import gsap from 'gsap'
+import type { CursorTip } from '../components/Cursor'
 import { asset } from '../lib/assets'
 import { addChip, loadChips, type GachaChip } from '../lib/gachaChips'
 import { CELL, cellSize, GACHA_CELLS, type GachaCell } from '../lib/gachaCells'
@@ -298,6 +299,12 @@ function inkOn(hex: string) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? '#030303' : '#ffffff'
 }
 
+// 메인 화면 빈 칸에 커서를 2초 넘게 두면 커서 옆에 띄우는 안내 (피그마 140:7613)
+export const GACHA_CURSOR_TIP: CursorTip = {
+  ko: ['랜덤으로 나만의 컬러를 뽑아보세요.', '뽑은 컬러에 직접 이름을 지어줄 수 있어요.'],
+  en: ['Pick your color at random.', 'You can assign your own color names.'],
+}
+
 // 메인 화면에 깔리는 사진은 시안 그대로, 컬러칩은 등록된 것 중에서만 고른다
 const PHOTO_CELLS = GACHA_CELLS.filter((c) => c.kind === 'photo')
 // 등록된 칩이 많아도 화면이 붐비지 않게 한 번에 보여주는 최대 개수 (시안의 컬러칩 7개와 비슷하게)
@@ -490,7 +497,14 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
       // start 버튼이 칸과 같은 비율로 줄어들도록 1920 기준 배율을 넘긴다
       style={{ '--gacha-scale': cellPx / CELL } as CSSProperties}
     >
-      <div ref={boardRef} className="gacha__board" style={boardStyle} aria-hidden="true">
+      {/* 빈 칸(보드 바로 위)에 멈춰 있으면 커서가 안내를 띄운다. start 뒤에는 띄우지 않는다 */}
+      <div
+        ref={boardRef}
+        className="gacha__board"
+        style={boardStyle}
+        aria-hidden="true"
+        data-cursor-idle={started ? undefined : ''}
+      >
         {cells.map((cell, i) => (
           <div
             key={`${cell.kind}-${i}`}
