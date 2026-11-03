@@ -232,6 +232,46 @@ body:has(.gacha.is-started) .nav {
     height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* 피그마 140:8128 텍스트만 있는 컬러칩. 약 200×200 시안을 2×2 칸에 맞춰 1.8배로 키운다.
+   컬러칩에 hover 하면 같은 글자 배치로 그 색을 채운 2×2 박스가 뜬다 */
+.gacha__cell.is-text,
+.gacha__hover {
+  --t: calc(1.8px * var(--gacha-scale, 1));
+  overflow: hidden;
+  color: #000000;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  letter-spacing: 0.04em;
+}
+.gacha__hover {
+  position: absolute;
+  z-index: 2;
+}
+.gacha__chip-name {
+  position: absolute;
+  left: calc(16 * var(--t));
+  right: calc(16 * var(--t));
+  top: calc(29 * var(--t));
+  margin: 0;
+  font-size: calc(29.1 * var(--t));
+  font-weight: 700;
+  line-height: calc(30 * var(--t));
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.gacha__chip-by {
+  position: absolute;
+  left: calc(16 * var(--t));
+  right: calc(16 * var(--t));
+  bottom: calc(17 * var(--t));
+  margin: 0;
+  font-size: calc(14 * var(--t));
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .gacha__photo {
   width: 100%;
   height: 100%;

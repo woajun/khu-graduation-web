@@ -65,7 +65,10 @@ export function pickColor(img: HTMLImageElement): string {
   return `#${sum.map((c) => Math.round(c / n).toString(16).padStart(2, '0')).join('')}`
 }
 
-type Props = { picked: Picked; onBack: () => void }
+// 최종 확인에서 OK 를 누르면 넘기는 값
+export type Registered = { color: string; name: string; author: string; photo: string }
+
+type Props = { picked: Picked; onBack: () => void; onRegister: (chip: Registered) => void }
 
 const DEFAULT_NAME = 'YOUR COLOR'
 const DEFAULT_AUTHOR = 'NAME'
@@ -73,13 +76,15 @@ const DEFAULT_AUTHOR = 'NAME'
 const EMPTY_NOTICE_MS = 2200
 // 색 이름 → 작성자 이름 단계로 넘어갈 때 오른쪽 글자가 바뀌는 시간
 const STEP_DURATION = 0.35
+// 최종 OK 뒤 결과 화면이 사라지는 시간
+const EXIT_DURATION = 0.4
 const HANGUL = /[\u3131-\u318e\uac00-\ud7a3]/
 
 /**
  * 입력한 이름을 왼쪽 큰 글자로 옮긴다.
  * 영어는 대문자(CSS)로 띄어쓰기마다 줄을 바꾸고, 한글이 섞이면 글꼴과 행간을 바꾸고 칸 폭에 맞춰 줄바꿈한다
  */
-function bigName(value: string) {
+export function bigName(value: string) {
   const text = value.trim() || DEFAULT_NAME
   const ko = HANGUL.test(text)
   return { ko, text: ko ? text : text.split(/\s+/).join('\n') }
@@ -112,7 +117,7 @@ const STEPS = {
 type Step = keyof typeof STEPS | 'confirm'
 
 /** 왼쪽은 고른 사진, 오른쪽은 그 사진의 색으로 칠한 면에 색 이름 → 작성자 이름 순서로 입력 */
-export function GachaResult({ picked, onBack }: Props) {
+export function GachaResult({ picked, onBack, onRegister }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const tlRef = useRef<gsap.core.Timeline | null>(null)
@@ -193,6 +198,17 @@ export function GachaResult({ picked, onBack }: Props) {
     tl.timeScale(1.6).eventCallback('onReverseComplete', onBack).reverse()
   }
 
+  // 최종 OK: 화면을 흐리게 지우고 나서 등록한다. 등록하면 메인 화면으로 돌아간다
+  const registering = useRef(false)
+  const register = () => {
+    if (registering.current) return
+    registering.current = true
+    const done = () =>
+      onRegister({ color: picked.color, name: name.trim(), author: author.trim(), photo: picked.name })
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return done()
+    gsap.to(rootRef.current, { autoAlpha: 0, duration: EXIT_DURATION, ease: 'power2.in', onComplete: done })
+  }
+
   return (
     <div ref={rootRef} className="gacha-result" role="dialog" aria-label="당신의 색">
       {copy ? (
@@ -249,7 +265,7 @@ export function GachaResult({ picked, onBack }: Props) {
             <button type="button" className="gacha-result__cancel" onClick={() => setStep('author')}>
               cancel
             </button>
-            <button type="button" className="gacha-result__confirm">
+            <button type="button" className="gacha-result__confirm" onClick={register}>
               OK
             </button>
           </div>

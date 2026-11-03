@@ -1,6 +1,6 @@
 export type GachaCell =
   | { row: number; col: number; kind: 'photo'; src: string; alt: string }
-  | { row: number; col: number; kind: 'color'; color: string; name: string }
+  | { row: number; col: number; kind: 'color'; color: string; name: string; author?: string }
 
 export const GACHA_CELLS: readonly GachaCell[] = [
   { row: 0, col: 3, kind: 'color', color: '#d5d4c7', name: '베이지' },

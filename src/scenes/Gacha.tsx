@@ -1,19 +1,27 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import gsap from 'gsap'
 import { asset } from '../lib/assets'
+import { addChip, loadChips, type GachaChip } from '../lib/gachaChips'
 import { CELL, cellSize, GACHA_CELLS, type GachaCell } from '../lib/gachaCells'
 import { thumbSrc, WASTE_PHOTOS } from '../lib/waste'
-import { GachaResult, pickColor, type Picked } from './GachaResult'
+import { bigName, GachaResult, pickColor, type Picked, type Registered } from './GachaResult'
 
 function useBoard() {
-  const [board, setBoard] = useState(() => ({ cell: 180, cols: 11, rows: 6 }))
+  const [board, setBoard] = useState(() => ({ cell: 180, cols: 11, rows: 6, fullCols: 10, fullRows: 6 }))
 
   useEffect(() => {
     const measure = () => {
       // 스크롤바 폭을 빼려고 innerWidth 대신 clientWidth 를 쓴다
       const { clientWidth: w, clientHeight: h } = document.documentElement
       const cell = cellSize(w)
-      setBoard({ cell, cols: Math.ceil(w / cell), rows: Math.ceil(h / cell) })
+      // 화면 끝에서 잘리는 칸까지 센 수와, 다 보이는 칸만 센 수
+      setBoard({
+        cell,
+        cols: Math.ceil(w / cell),
+        rows: Math.ceil(h / cell),
+        fullCols: Math.floor(w / cell),
+        fullRows: Math.floor(h / cell),
+      })
     }
     measure()
     addEventListener('resize', measure)
@@ -23,18 +31,20 @@ function useBoard() {
   return board
 }
 
-// 피그마 가챠 화면처럼 칸 크기를 섞는다. chip 은 칸 한쪽 모서리에 붙는 작은 정사각형(칸의 37%)
-type Size = 'chip' | '1x1' | '2x1' | '2x2'
+// 피그마 가챠 화면처럼 칸 크기를 섞는다. chip 은 칸 한쪽 모서리에 붙는 작은 정사각형(칸의 37%, 피그마 140:8101)
+// text 는 박스 없이 색 이름과 '@작성자' 만 2×2 자리에 쓴다 (피그마 140:8128)
+type Size = 'chip' | '1x1' | '2x1' | '2x2' | 'text'
 const SIZE_SPAN: Record<Size, readonly [cols: number, rows: number]> = {
   chip: [1, 1],
   '1x1': [1, 1],
   '2x1': [2, 1],
   '2x2': [2, 2],
+  text: [2, 2],
 }
 // 종류마다 크기가 나올 비중. 사진은 칸을 꽉 채우고, 컬러칩은 작은 칩이 가장 많다
 const SIZE_WEIGHTS: Record<GachaCell['kind'], Partial<Record<Size, number>>> = {
   photo: { '1x1': 5, '2x2': 2, '2x1': 1 },
-  color: { chip: 4, '1x1': 2, '2x1': 2, '2x2': 1 },
+  color: { chip: 4, '1x1': 2, '2x1': 2, '2x2': 1, text: 2 },
 }
 const CHIP_RATIO = 0.37
 
@@ -58,13 +68,22 @@ function sizeOrder(kind: GachaCell['kind']): Size[] {
 
 /**
  * 칸마다 크기를 랜덤으로 정해 겹치지 않게 배치한다.
- * keep 이면 원래 자리를 먼저 쓰고, 자리가 없을 때만 빈 곳을 찾는다
+ * keep 이면 원래 자리를 먼저 쓰고, 자리가 없을 때만 빈 곳을 찾는다.
+ * 텍스트만 있는 칸은 글자가 잘리지 않게 화면 끝에서 잘리는 칸(full 바깥)에는 두지 않는다
  */
-function place(cells: readonly GachaCell[], cols: number, rows: number, keep: boolean): PlacedCell[] {
+function place(
+  cells: readonly GachaCell[],
+  cols: number,
+  rows: number,
+  keep: boolean,
+  full: { cols: number; rows: number },
+): PlacedCell[] {
   const taken = new Set<string>()
   // 첫 줄은 헤더 자리라 비운다
-  const fits = (row: number, col: number, [w, h]: readonly [number, number]) => {
-    if (row < 1 || col < 0 || row + h > rows || col + w > cols) return false
+  const fits = (row: number, col: number, size: Size) => {
+    const [w, h] = SIZE_SPAN[size]
+    const [maxCols, maxRows] = size === 'text' ? [full.cols, full.rows] : [cols, rows]
+    if (row < 1 || col < 0 || row + h > maxRows || col + w > maxCols) return false
     for (let r = row; r < row + h; r++)
       for (let c = col; c < col + w; c++) if (taken.has(`${r}:${c}`)) return false
     return true
@@ -77,7 +96,7 @@ function place(cells: readonly GachaCell[], cols: number, rows: number, keep: bo
   return cells.map((cell) => {
     const sizes = sizeOrder(cell.kind)
     if (keep) {
-      const size = sizes.find((s) => fits(cell.row, cell.col, SIZE_SPAN[s]))
+      const size = sizes.find((s) => fits(cell.row, cell.col, s))
       if (size) {
         take(cell.row, cell.col, SIZE_SPAN[size])
         return { ...cell, size, corner: corner() }
@@ -87,7 +106,7 @@ function place(cells: readonly GachaCell[], cols: number, rows: number, keep: bo
       for (let tries = 0; tries < 200; tries++) {
         const row = Math.floor(Math.random() * rows)
         const col = Math.floor(Math.random() * cols)
-        if (!fits(row, col, SIZE_SPAN[size])) continue
+        if (!fits(row, col, size)) continue
         take(row, col, SIZE_SPAN[size])
         return { ...cell, row, col, size, corner: corner() }
       }
@@ -252,8 +271,84 @@ function layoutArchive(cols: number, rows: number): ArchiveTile[] {
   return tiles
 }
 
+/** 박스 없이 쓰는 컬러칩 이름. 결과 화면처럼 영어는 띄어쓰기마다 줄을 바꾼다 */
+function ChipText({ name, author }: { name: string; author?: string }) {
+  const big = bigName(name)
+  return (
+    <>
+      <p className={`gacha__chip-name${big.ko ? ' is-ko' : ''}`}>{big.text}</p>
+      {author && <p className="gacha__chip-by">@{author}</p>}
+    </>
+  )
+}
+
+// 컬러칩에 hover 하면 2×2 로 커지는 시간과, 커진 뒤 글자가 나타나는 시간
+const HOVER_GROW = 0.35
+const HOVER_TEXT = 0.25
+// 줄어들 때는 글자를 먼저 빠르게 지우고, 박스는 칩 자리로 부드럽게 접혀 칩과 그대로 겹친다
+const HOVER_TEXT_OUT = 0.12
+const HOVER_SHRINK = 0.4
+
+/** 배경색이 밝으면 검은 글자, 어두우면 흰 글자 (상대 휘도 기준) */
+function inkOn(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? '#030303' : '#ffffff'
+}
+
+// 메인 화면에 깔리는 사진은 시안 그대로, 컬러칩은 등록된 것 중에서만 고른다
+const PHOTO_CELLS = GACHA_CELLS.filter((c) => c.kind === 'photo')
+// 등록된 칩이 많아도 화면이 붐비지 않게 한 번에 보여주는 최대 개수 (시안의 컬러칩 7개와 비슷하게)
+const MAX_COLORS = 8
+// 등록을 마치고 메인으로 돌아올 때 사진·컬러칩이 다시 나타나는 리듬
+const RETURN_STAGGER = 0.05
+const RETURN_DURATION = 0.4
+
+/** 등록된 칩을 섞어 MAX_COLORS 개까지 고른다. 방금 등록한 칩은 꼭 넣는다. 자리는 place 가 랜덤으로 정한다 */
+function chipCells(chips: readonly GachaChip[], featured?: string): GachaCell[] {
+  const mine = chips.filter((c) => c.id === featured)
+  const others = gsap.utils.shuffle(chips.filter((c) => c.id !== featured))
+  return [...mine, ...others]
+    .slice(0, MAX_COLORS)
+    .map((c) => ({ row: -1, col: -1, kind: 'color', color: c.color, name: c.name, author: c.author }))
+}
+
+/**
+ * 가챠 한 판. 최종 OK 로 컬러칩을 등록하면 새 판으로 바꿔(key) start 버튼과 배치를 처음 상태로 되돌린다
+ */
 export function Gacha() {
-  const { cell: cellPx, cols, rows } = useBoard()
+  const [chips, setChips] = useState(loadChips)
+  const [round, setRound] = useState<{ n: number; featured?: string }>({ n: 0 })
+  const register = useCallback(
+    (chip: Registered) => {
+      const list = addChip(chips, chip)
+      setChips(list)
+      setRound((r) => ({ n: r.n + 1, featured: list[list.length - 1].id }))
+    },
+    [chips],
+  )
+  return (
+    <GachaRound
+      key={round.n}
+      chips={chips}
+      featured={round.featured}
+      returning={round.n > 0}
+      onRegister={register}
+    />
+  )
+}
+
+type RoundProps = {
+  chips: readonly GachaChip[]
+  featured?: string
+  returning: boolean
+  onRegister: (chip: Registered) => void
+}
+
+function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
+  const { cell: cellPx, cols, rows, fullCols, fullRows } = useBoard()
   // start 를 누르면 화면이 어두워지고 사진·컬러칩이 하나둘씩 사라진다
   const [started, setStarted] = useState(false)
   const startRef = useRef<HTMLButtonElement>(null)
@@ -269,9 +364,33 @@ export function Gacha() {
   }, [])
   useDrift(startRef, cellPx)
 
+  // hover 한 컬러칩 (cells 의 번호). 칩 자리에서 2×2 로 커지며 그 색과 이름을 보여준다
+  const [hover, setHover] = useState<number | null>(null)
+  const hoverRef = useRef<HTMLDivElement>(null)
+  const leaving = useRef<gsap.core.Timeline | null>(null)
+
   // 화면이 시안 배치(11×6)를 다 담으면 원래 자리를 살리고 크기만 랜덤으로 바꾼다
   const fitsDesign = cols >= 11 && rows >= 6
-  const cells = useMemo(() => place(GACHA_CELLS, cols, rows, fitsDesign), [cols, rows, fitsDesign])
+  // 판이 바뀔 때만 칩을 새로 고른다 (창 크기가 바뀌어도 같은 칩을 다시 배치한다)
+  const colors = useMemo(() => chipCells(chips, featured), [chips, featured])
+  const cells = useMemo(
+    () => place([...PHOTO_CELLS, ...colors], cols, rows, fitsDesign, { cols: fullCols, rows: fullRows }),
+    [colors, cols, rows, fitsDesign, fullCols, fullRows],
+  )
+
+  // 등록하고 돌아왔을 땐 사진·컬러칩이 하나둘씩 다시 나타난다
+  useLayoutEffect(() => {
+    const board = boardRef.current
+    if (!returning || !board || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const tween = gsap.from(gsap.utils.shuffle([...board.querySelectorAll<HTMLElement>('.gacha__cell')]), {
+      autoAlpha: 0,
+      scale: 0.85,
+      duration: RETURN_DURATION,
+      stagger: RETURN_STAGGER,
+      ease: 'power2.out',
+    })
+    return () => void tween.revert()
+  }, [returning])
 
   const start = useCallback(() => {
     if (started) return
@@ -305,6 +424,60 @@ export function Gacha() {
     return () => void tween.kill()
   }, [archive])
 
+  // 커질 자리: 칩이 있는 칸을 왼쪽 위로 두고, 화면 끝이나 헤더 줄에 걸리면 안쪽으로 당긴다
+  const hovered = hover === null ? null : cells[hover]
+  const grown = hovered && {
+    left: gsap.utils.clamp(0, Math.max(0, fullCols - 2), hovered.col) * cellPx,
+    top: gsap.utils.clamp(1, Math.max(1, fullRows - 2), hovered.row) * cellPx,
+    width: 2 * cellPx,
+    height: 2 * cellPx,
+  }
+  useLayoutEffect(() => {
+    const el = hoverRef.current
+    if (!el || !hovered || !grown) return
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const ctx = gsap.context(() => {
+      gsap
+        .timeline()
+        .fromTo(
+          el,
+          { ...cellBox(hovered, cellPx), autoAlpha: 1 },
+          { ...grown, duration: reduce ? 0 : HOVER_GROW, ease: 'power3.out' },
+        )
+        .fromTo('p', { autoAlpha: 0 }, { autoAlpha: 1, duration: reduce ? 0 : HOVER_TEXT }, reduce ? 0 : '-=0.15')
+    }, el)
+    return () => ctx.revert()
+    // 칩이 바뀔 때만 다시 키운다
+  }, [hover, cellPx])
+
+  const enter = (i: number) => {
+    if (started) return
+    const tl = leaving.current
+    leaving.current = null
+    // 접히는 도중에 같은 칩으로 돌아오면 그 자리에서 다시 펼친다
+    if (tl?.isActive() && i === hover) return void tl.eventCallback('onComplete', null).reverse()
+    tl?.kill()
+    setHover(i)
+  }
+  // 칩과 커진 박스 사이를 오갈 땐 그대로 두고, 둘 다 벗어나면 칩 크기로 줄이며 닫는다
+  const leave = (to: EventTarget | null) => {
+    const el = hoverRef.current
+    const cell = boardRef.current?.querySelector(`[data-cell="${hover}"]`)
+    if (to instanceof Node && (el?.contains(to) || cell?.contains(to))) return
+    if (!el || !hovered || matchMedia('(prefers-reduced-motion: reduce)').matches) return setHover(null)
+    leaving.current?.kill()
+    const tl = gsap.timeline({ onComplete: () => setHover(null) })
+    tl.to(el.querySelectorAll('p'), { autoAlpha: 0, duration: HOVER_TEXT_OUT, ease: 'power1.out' }).to(
+      el,
+      { ...cellBox(hovered, cellPx), duration: HOVER_SHRINK, ease: 'power3.inOut' },
+      '<',
+    )
+    // 텍스트만 있는 칸은 박스가 없으니 접히는 끝에서 배경색만 걷어 낸다
+    if (hovered.size === 'text')
+      tl.to(el, { backgroundColor: 'transparent', duration: HOVER_SHRINK * 0.6, ease: 'power1.in' }, '>-0.2')
+    leaving.current = tl
+  }
+
   const boardStyle = useMemo(
     () => ({ backgroundSize: `${cellPx}px ${cellPx}px` }) as const,
     [cellPx],
@@ -321,17 +494,34 @@ export function Gacha() {
         {cells.map((cell, i) => (
           <div
             key={`${cell.kind}-${i}`}
-            className="gacha__cell"
+            className={`gacha__cell${cell.size === 'text' ? ' is-text' : ''}`}
+            data-cell={i}
+            onMouseEnter={cell.kind === 'color' ? () => enter(i) : undefined}
+            onMouseLeave={cell.kind === 'color' ? (e) => leave(e.relatedTarget) : undefined}
             style={{
               ...cellBox(cell, cellPx),
-              ...(cell.kind === 'color' ? { background: cell.color } : null),
+              ...(cell.kind === 'color' && cell.size !== 'text' ? { background: cell.color } : null),
             }}
           >
             {cell.kind === 'photo' && (
               <img className="gacha__photo" src={asset(cell.src)} alt="" loading="lazy" />
             )}
+            {cell.kind === 'color' && cell.size === 'text' && <ChipText name={cell.name} author={cell.author} />}
           </div>
         ))}
+        {hovered?.kind === 'color' && !started && (
+          <div
+            key={hover}
+            ref={hoverRef}
+            className="gacha__hover"
+            style={{ ...grown, background: hovered.color, color: inkOn(hovered.color) }}
+            // 접히는 박스 위로 마우스가 돌아와도 다시 펼친다
+            onMouseEnter={() => enter(hover!)}
+            onMouseLeave={(e) => leave(e.relatedTarget)}
+          >
+            <ChipText name={hovered.name} author={hovered.author} />
+          </div>
+        )}
       </div>
 
       {archive && (
@@ -356,7 +546,7 @@ export function Gacha() {
         </div>
       )}
 
-      {picked && <GachaResult picked={picked} onBack={() => setPicked(null)} />}
+      {picked && <GachaResult picked={picked} onBack={() => setPicked(null)} onRegister={onRegister} />}
 
       <button ref={startRef} type="button" className="gacha__start" onClick={start} disabled={started}>
         {/* 피그마 start 버튼: 평소엔 직사각형, hover 하면 모서리가 잘린 입체 박스로 바뀐다 */}
