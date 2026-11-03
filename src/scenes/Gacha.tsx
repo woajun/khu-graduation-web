@@ -454,7 +454,7 @@ function GachaRound({ chips, featured, returning, onRegister }: RoundProps) {
     if (!el || !hovered || !grown) return
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const ctx = gsap.context(() => {
-      if (hovered.size === 'text') {
+      if (hovered.kind === 'color' && hovered.size === 'text') {
         const { x, y } = pointer.current
         gsap
           .timeline()
