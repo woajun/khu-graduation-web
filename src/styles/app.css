@@ -319,6 +319,27 @@ body:has(.gacha-result) .nav {
   font-weight: 700;
   line-height: calc(210 * var(--u));
 }
+/* 피그마 140:8802. 작성자 이름은 왼쪽 아래에 '@이름' 으로. 길면 위로 줄을 늘린다 */
+.gacha-result__by {
+  position: absolute;
+  left: calc(33 * var(--u));
+  bottom: calc(29 * var(--u));
+  max-width: calc(894 * var(--u));
+  margin: 0;
+  color: rgb(255 255 255 / 0.7);
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(100 * var(--u));
+  font-weight: 900;
+  line-height: calc(170 * var(--u));
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.gacha-result__by.is-ko {
+  font-family: 'KOTRA Bold', 'Montserrat', sans-serif;
+  font-weight: 700;
+}
 .gacha-result__panel {
   position: absolute;
   left: 50%;
@@ -441,6 +462,99 @@ body:has(.gacha-result) .nav {
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
+}
+
+/* 피그마 140:6491 확인 단계. 흐린 사진 위에 컬러칩과 cancel·OK. 오른쪽 절반 가운데 정렬 */
+.gacha-result__panel.is-confirm {
+  background: #fffdfc;
+  color: #000000;
+  text-align: center;
+}
+.gacha-result__blur {
+  position: absolute;
+  /* 흐림이 가장자리에서 옅어지지 않도록 살짝 넓게 깐다 */
+  inset: calc(-40 * var(--u));
+  background: center / cover no-repeat;
+  filter: blur(calc(15 * var(--u)));
+  opacity: 0.6;
+}
+.gacha-result__chip-title {
+  position: relative;
+  margin: calc(192 * var(--u)) 0 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(48 * var(--u));
+  font-weight: 700;
+  line-height: calc(30 * var(--u));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.gacha-result__chip-desc {
+  position: relative;
+  margin: calc(31 * var(--u)) 0 0;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  font-size: calc(24 * var(--u));
+  line-height: calc(30 * var(--u));
+  letter-spacing: 0.04em;
+}
+.gacha-result__chip {
+  position: relative;
+  box-sizing: border-box;
+  width: calc(394 * var(--u));
+  height: calc(394 * var(--u));
+  margin: calc(78 * var(--u)) auto 0;
+  padding: calc(46 * var(--u)) calc(31 * var(--u)) calc(41 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #ffffff;
+  text-align: left;
+}
+.gacha-result__chip-name {
+  margin: 0;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  font-size: calc(64.05 * var(--u));
+  font-weight: 700;
+  line-height: calc(79 * var(--u));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.gacha-result__chip-by {
+  margin: 0;
+  font-family: 'GamtanRoad Dotum', sans-serif;
+  font-size: calc(30.82 * var(--u));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.gacha-result__actions {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: calc(20 * var(--u));
+  margin-top: calc(78 * var(--u));
+}
+.gacha-result__cancel,
+.gacha-result__confirm {
+  width: calc(187 * var(--u));
+  height: calc(72 * var(--u));
+  padding: 0;
+  border: 1px solid #000000;
+  font-family: 'Montserrat', sans-serif;
+  font-size: calc(30 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.gacha-result__cancel {
+  background: #030303;
+  color: #ffffff;
+}
+.gacha-result__confirm {
+  background: #ffffff;
+  color: #000000;
 }
 
 /* 피그마 1920 기준 1136.64, 787.32 / 245.76×158 을 칸과 같은 배율로 줄인다 */

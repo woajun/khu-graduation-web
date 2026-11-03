@@ -68,8 +68,11 @@ export function pickColor(img: HTMLImageElement): string {
 type Props = { picked: Picked; onBack: () => void }
 
 const DEFAULT_NAME = 'YOUR COLOR'
+const DEFAULT_AUTHOR = 'NAME'
 // 이름 없이 OK 를 누르면 뜨는 안내가 머무는 시간(ms)
 const EMPTY_NOTICE_MS = 2200
+// 색 이름 → 작성자 이름 단계로 넘어갈 때 오른쪽 글자가 바뀌는 시간
+const STEP_DURATION = 0.35
 const HANGUL = /[\u3131-\u318e\uac00-\ud7a3]/
 
 /**
@@ -82,12 +85,44 @@ function bigName(value: string) {
   return { ko, text: ko ? text : text.split(/\s+/).join('\n') }
 }
 
-/** 피그마 140:8400. 왼쪽은 고른 사진, 오른쪽은 그 사진의 색으로 칠한 면에 이름 짓기 입력 */
+/** 작성자 이름은 왼쪽 아래에 '@' + 이름 으로 한 줄로 쓴다. 한글이 섞이면 코트라 볼드 */
+function authorName(value: string) {
+  const text = value.trim() || DEFAULT_AUTHOR
+  return { ko: HANGUL.test(text), text: `@${text}` }
+}
+
+// 단계마다 오른쪽에 보이는 문구. 피그마 140:8400(색 이름), 140:8802(작성자 이름)
+const STEPS = {
+  color: {
+    title: 'It’s Your Color!',
+    desc: '이미지와 컬러를 보고 어울리는 이름을 지어주세요',
+    placeholder: '예시) 폐수그린/폐지브라운 ...',
+    label: '색 이름',
+    notice: '이름을 지어주세요.',
+  },
+  author: {
+    title: 'Your Name?',
+    desc: '컬러 네임을 지어준 분의 이름을 작성해주세요',
+    placeholder: 'YOUR NAME',
+    label: '작성자 이름',
+    notice: '작성자분의 네임을 입력해주세요.',
+  },
+} as const
+// 두 번의 입력이 끝나면 피그마 140:6491 처럼 컬러칩을 보여주고 등록할지 묻는다
+type Step = keyof typeof STEPS | 'confirm'
+
+/** 왼쪽은 고른 사진, 오른쪽은 그 사진의 색으로 칠한 면에 색 이름 → 작성자 이름 순서로 입력 */
 export function GachaResult({ picked, onBack }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const tlRef = useRef<gsap.core.Timeline | null>(null)
+  const [step, setStep] = useState<Step>('color')
   const [name, setName] = useState('')
+  const [author, setAuthor] = useState('')
   const big = bigName(name)
+  const by = authorName(author)
+  const copy = step === 'confirm' ? null : STEPS[step]
+  const value = step === 'color' ? name : author
   // 이름 없이 OK(또는 Enter)를 누르면 입력창 아래에 안내를 띄운다. 누를 때마다 숫자를 올려 다시 띄운다
   const [notice, setNotice] = useState(0)
   useEffect(() => {
@@ -98,7 +133,8 @@ export function GachaResult({ picked, onBack }: Props) {
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) setNotice((n) => n + 1)
+    if (!value.trim()) return setNotice((n) => n + 1)
+    setStep(step === 'color' ? 'author' : 'confirm')
   }
 
   useLayoutEffect(() => {
@@ -122,8 +158,36 @@ export function GachaResult({ picked, onBack }: Props) {
     return () => ctx.revert()
   }, [picked])
 
-  // 들어올 때 모션을 거꾸로 돌려 사진 칸 자리로 돌아간 뒤 닫는다
+  // 단계가 바뀌면 오른쪽 문구와 입력창을 다시 올려 보여주고, 작성자 단계에선 왼쪽 아래 '@이름' 도 올린다
+  // StrictMode 에서 처음에 두 번 실행돼도 움직이지 않도록, 직전 단계와 다를 때만 돈다
+  const shownStep = useRef<Step>(step)
+  useLayoutEffect(() => {
+    if (shownStep.current === step) return
+    shownStep.current = step
+    // autoAlpha 가 visibility 를 숨기는 동안엔 포커스가 풀리므로, 다 보인 뒤에 입력창에 커서를 둔다
+    const focus = () => inputRef.current?.focus()
+    const root = rootRef.current
+    if (!root || matchMedia('(prefers-reduced-motion: reduce)').matches) return focus()
+    const ctx = gsap.context(() => {
+      gsap.from('[data-step]', {
+        autoAlpha: 0,
+        y: 24,
+        duration: STEP_DURATION,
+        stagger: TEXT_STAGGER,
+        ease: 'power2.out',
+        onComplete: focus,
+      })
+    }, root)
+    return () => ctx.revert()
+  }, [step])
+
+  // 작성자 단계에서는 색 이름 단계로 돌아간다 (확인 단계의 cancel 은 작성자 단계로).
+  // 색 이름 단계에서는 들어올 때 모션을 거꾸로 돌려 사진 칸 자리로 돌아간 뒤 닫는다
   const back = () => {
+    if (step === 'author') {
+      setNotice(0)
+      return setStep('color')
+    }
     const tl = tlRef.current
     if (!tl || matchMedia('(prefers-reduced-motion: reduce)').matches) return onBack()
     tl.timeScale(1.6).eventCallback('onReverseComplete', onBack).reverse()
@@ -131,40 +195,66 @@ export function GachaResult({ picked, onBack }: Props) {
 
   return (
     <div ref={rootRef} className="gacha-result" role="dialog" aria-label="당신의 색">
-      <div className="gacha-result__panel" style={{ background: picked.color }}>
-        <button type="button" className="gacha-result__back" onClick={back} aria-label="뒤로" data-rise>
-          <svg viewBox="0 0 31 22" aria-hidden="true">
-            <path d="M30 11H2M11 1.5L1.5 11L11 20.5" />
-          </svg>
-        </button>
-        <h2 className="gacha-result__title" data-rise>
-          It’s Your Color!
-        </h2>
-        <p className="gacha-result__desc" data-rise>
-          이미지와 컬러를 보고 어울리는 이름을 지어주세요
-        </p>
-        <form className="gacha-result__form" onSubmit={submit} data-rise>
-          <input
-            className="gacha-result__input"
-            type="text"
-            placeholder="예시) 폐수그린/폐지브라운 ..."
-            aria-label="색 이름"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              setNotice(0)
-            }}
-          />
-          <button type="submit" className="gacha-result__ok">
-            OK
+      {copy ? (
+        <div className="gacha-result__panel" style={{ background: picked.color }}>
+          <button type="button" className="gacha-result__back" onClick={back} aria-label="뒤로" data-rise>
+            <svg viewBox="0 0 31 22" aria-hidden="true">
+              <path d="M30 11H2M11 1.5L1.5 11L11 20.5" />
+            </svg>
           </button>
-        </form>
-        {notice > 0 && (
-          <p key={notice} className="gacha-result__notice" role="alert">
-            이름을 지어주세요.
+          <h2 className="gacha-result__title" data-rise data-step>
+            {copy.title}
+          </h2>
+          <p className="gacha-result__desc" data-rise data-step>
+            {copy.desc}
           </p>
-        )}
-      </div>
+          <form className="gacha-result__form" onSubmit={submit} data-rise data-step>
+            <input
+              ref={inputRef}
+              className="gacha-result__input"
+              type="text"
+              placeholder={copy.placeholder}
+              aria-label={copy.label}
+              value={value}
+              onChange={(e) => {
+                ;(step === 'color' ? setName : setAuthor)(e.target.value)
+                setNotice(0)
+              }}
+            />
+            <button type="submit" className="gacha-result__ok">
+              OK
+            </button>
+          </form>
+          {notice > 0 && (
+            <p key={notice} className="gacha-result__notice" role="alert">
+              {copy.notice}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="gacha-result__panel is-confirm">
+          {/* 고른 사진을 흐리게 깔고 그 위에 컬러칩을 올린다 */}
+          <div className="gacha-result__blur" style={{ backgroundImage: `url(${photoSrc(picked.name)})` }} />
+          <h2 className="gacha-result__chip-title" data-step>
+            Your Color Chip
+          </h2>
+          <p className="gacha-result__chip-desc" data-step>
+            이대로 등록을 진행하시겠습니까?
+          </p>
+          <div className="gacha-result__chip" style={{ background: picked.color }} data-step>
+            <p className={`gacha-result__chip-name${big.ko ? ' is-ko' : ''}`}>{big.text}</p>
+            <p className="gacha-result__chip-by">{by.text}</p>
+          </div>
+          <div className="gacha-result__actions" data-step>
+            <button type="button" className="gacha-result__cancel" onClick={() => setStep('author')}>
+              cancel
+            </button>
+            <button type="button" className="gacha-result__confirm">
+              OK
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 큰 사진을 받는 동안 이미 받아 둔 썸네일이 먼저 보인다 */}
       <div className="gacha-result__photo" style={{ backgroundImage: `url(${thumbSrc(picked.name)})` }}>
@@ -172,6 +262,16 @@ export function GachaResult({ picked, onBack }: Props) {
         <p className={`gacha-result__your${big.ko ? ' is-ko' : ''}`} aria-hidden="true" data-rise>
           {big.text}
         </p>
+        {/* 작성자 단계에 들어올 때만 올라오고, 확인 단계에서는 그대로 남는다 */}
+        {step !== 'color' && (
+          <p
+            className={`gacha-result__by${by.ko ? ' is-ko' : ''}`}
+            aria-hidden="true"
+            data-step={step === 'author' ? '' : undefined}
+          >
+            {by.text}
+          </p>
+        )}
       </div>
     </div>
   )
